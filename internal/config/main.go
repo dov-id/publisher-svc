@@ -13,6 +13,11 @@ type Config interface {
 	pgdb.Databaser
 	types.Copuser
 	comfig.Listenerer
+
+	Indexer() *IndexerCfg
+	Ipfs() *IpfsCfg
+	Networks() *NetworksCfg
+	FeedbackRegistry() *FeedbackRegistryCfg
 }
 
 type config struct {
@@ -21,6 +26,11 @@ type config struct {
 	types.Copuser
 	comfig.Listenerer
 	getter kv.Getter
+
+	indexer          comfig.Once
+	ipfs             comfig.Once
+	networks         comfig.Once
+	feedbackRegistry comfig.Once
 }
 
 func New(getter kv.Getter) Config {

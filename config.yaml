@@ -5,6 +5,44 @@ log:
 db:
   url: db_url
 
+ipfs:
+  url: "localhost:5001"
+
+indexer:
+  timeout: 30s
+
+feedback_registry:
+  list:
+    - network: ethereum
+      address: contract_addr
+    - network: polygon
+      address: contract_addr
+    - network: q
+      address: contract_addr
+
+networks:
+  list:
+    - name: ethereum
+      rpc_url: wss://...
+      https_url: https://...
+      key: api_key
+    - name: polygon
+      rpc_url: rpc_url
+      https_url: https_url
+      key: api_key
+    - name: q
+      rpc_url: rpc_url
+      https_url: https_url
+      key: private_key
+    - name: metamask
+      rpc_url: rpc_url
+      https_url: https_url
+      key: private_key
+    - name: infura
+      rpc_url: rpc_url
+      https_url: https_url
+      key: api_key
+
 listener:
   addr: :8000
 
