@@ -1,0 +1,8 @@
+.vscode/
+.idea/
+config.*dev.yaml
+docs/node_modules
+docs/web_deploy
+contracts/abi/
+docker-compose.yml
+publisher-svc
