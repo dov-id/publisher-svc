@@ -21,22 +21,32 @@ func InitNetworkClients(networks map[string]config.Network) (map[string]*ethclie
 			continue
 		}
 
-		var rawUrl string
-		switch network {
-		case data.QNetwork:
-			rawUrl = params.RpcUrl
-		default:
-			rawUrl = params.RpcUrl + infura.Key
+		client, err := CreateNetworkClient(network, params, infura)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create network client")
 		}
 
-		client, err := ethclient.Dial(rawUrl)
-		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("failed to make dial connect to `%s` network", network))
-		}
 		clients[network] = client
 	}
 
 	return clients, nil
+}
+
+func CreateNetworkClient(network string, params config.Network, infura config.Network) (*ethclient.Client, error) {
+	var rawUrl string
+	switch network {
+	case data.QNetwork:
+		rawUrl = params.RpcUrl
+	default:
+		rawUrl = params.RpcUrl + infura.Key
+	}
+
+	client, err := ethclient.Dial(rawUrl)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to make dial connect to `%s` network", network))
+	}
+
+	return client, nil
 }
 
 func InitFeedbackRegistryContracts(certIntegrators map[string]string, clients map[string]*ethclient.Client) (map[string]*contracts.FeedbackRegistry, error) {

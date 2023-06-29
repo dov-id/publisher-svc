@@ -9,6 +9,7 @@ require (
 	github.com/fatih/structs v1.1.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
+	github.com/google/uuid v1.3.0
 	github.com/ipfs/go-ipfs-api v0.6.0
 	github.com/rubenv/sql-migrate v1.5.1
 	gitlab.com/distributed_lab/ape v1.7.1
@@ -16,6 +17,7 @@ require (
 	gitlab.com/distributed_lab/kit v1.11.2
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
 	gitlab.com/distributed_lab/running v1.6.0
+	gitlab.com/distributed_lab/urlval v3.0.0+incompatible
 )
 
 require (
@@ -36,7 +38,6 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.2.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect

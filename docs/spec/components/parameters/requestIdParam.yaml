@@ -1,0 +1,7 @@
+in: query
+name: 'filter[request_id]'
+required: true
+schema:
+  type: string
+  format: uuid
+  description: UUID of request to check publishing status.

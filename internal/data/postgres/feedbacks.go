@@ -85,3 +85,22 @@ func (q FeedbacksQ) FilterByCourses(courses ...string) data.Feedbacks {
 
 	return q
 }
+
+func (q FeedbacksQ) Count() data.Feedbacks {
+	q.selectBuilder = sq.Select("COUNT (*)").From(feedbacksTableName)
+
+	return q
+}
+
+func (q FeedbacksQ) GetTotalCount() (int64, error) {
+	var count int64
+	err := q.db.Get(&count, q.selectBuilder)
+
+	return count, err
+}
+
+func (q FeedbacksQ) Page(pageParams pgdb.OffsetPageParams) data.Feedbacks {
+	q.selectBuilder = pageParams.ApplyTo(q.selectBuilder, feedbacksCourseColumn)
+
+	return q
+}

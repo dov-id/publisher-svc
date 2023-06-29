@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/dov-id/publisher-svc/internal/data"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -45,7 +46,7 @@ func GetAuth(client *ethclient.Client, private string) (*bind.TransactOpts, erro
 	return auth, nil
 }
 
-func WaitForTransactionMined(client *ethclient.Client, transaction *types.Transaction, log *logan.Entry) {
+func WaitForTransactionMined(client *ethclient.Client, transaction *types.Transaction, log *logan.Entry, reqId string, requestsQ data.Requests) {
 	var (
 		err   error
 		mined = make(chan struct{})
@@ -54,10 +55,24 @@ func WaitForTransactionMined(client *ethclient.Client, transaction *types.Transa
 
 	go func() {
 		log.WithField("tx", transaction.Hash().Hex()).Debugf("waiting to mine")
+
 		_, err = bind.WaitMined(ctx, client, transaction)
 		if err != nil {
+			errorMsg := err.Error()
+
+			err = requestsQ.FilterByIds(reqId).Update(data.RequestToUpdate{Status: data.FAILED, Error: &errorMsg})
+			if err != nil {
+				err = errors.Wrap(err, "failed to update request status")
+			}
+
 			panic(errors.Wrap(err, "failed to mine transaction"))
 		}
+
+		err = requestsQ.FilterByIds(reqId).Update(data.RequestToUpdate{Status: data.SUCCESS})
+		if err != nil {
+			panic(errors.Wrap(err, "failed to update request status"))
+		}
+
 		log.WithField("tx", transaction.Hash().Hex()).Debugf("was mined")
 
 		close(mined)

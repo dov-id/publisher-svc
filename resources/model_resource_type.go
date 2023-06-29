@@ -8,5 +8,7 @@ type ResourceType string
 
 // List of ResourceType
 const (
+	FEEDBACK       ResourceType = "feedback"
+	REQUEST        ResourceType = "request"
 	RING_SIGNATURE ResourceType = "ring_signature"
 )

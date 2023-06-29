@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/dov-id/publisher-svc/internal/data"
 	"github.com/dov-id/publisher-svc/resources"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -26,7 +27,7 @@ func NewAddFeedbackRequest(r *http.Request) (AddFeedbackRequest, error) {
 func (r *AddFeedbackRequest) validate() error {
 	return validation.Errors{
 		"course":       validation.Validate(&r.Data.Attributes.Course, validation.Required),
-		"network":      validation.Validate(&r.Data.Attributes.Network, validation.Required),
+		"network":      validation.Validate(&r.Data.Attributes.Network, validation.In(data.EthereumNetwork, data.PolygonNetwork, data.QNetwork)),
 		"feedback":     validation.Validate(&r.Data.Attributes.Feedback, validation.Required),
 		"signature":    validation.Validate(&r.Data.Attributes.Signature, validation.Required),
 		"public_keys":  validation.Validate(&r.Data.Attributes.PublicKeys, validation.Required),

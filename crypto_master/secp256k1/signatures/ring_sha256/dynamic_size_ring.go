@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/dov-id/publisher-svc/crypto_master/hash"
 	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/ecc_math"
 	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/random"
-	"github.com/dov-id/publisher-svc/crypto_master/secp256r1/signatures/ring_sha256"
-
-	"github.com/dov-id/publisher-svc/crypto_master/hash"
 )
 
 /*
@@ -47,11 +45,6 @@ Else
 		Return "Incorrect"
 */
 
-//var (
-//Mod = ecc_math.Curve.Params().N
-//G   = ecc_math.BasePointGGet()
-//)
-
 type DynamicSizeRingSignature struct {
 	I big.Int
 	C []big.Int
@@ -88,7 +81,7 @@ func DynamicSizeRingSignatureGen(message string, ringPublicKeys []ecc_math.ECPoi
 
 	for i := 0; i < participantsLen; i++ {
 		if i != index {
-			X[i] = ecc_math.AddECPoints(ecc_math.ScalarMult(ringPublicKeys[i], c[i]), ecc_math.ScalarMult(ecc_math.ECPoint(ring_sha256.G), r[i]))
+			X[i] = ecc_math.AddECPoints(ecc_math.ScalarMult(ringPublicKeys[i], c[i]), ecc_math.ScalarMult(G, r[i]))
 			tmp := new(big.Int)
 			tmp.Mul(&c[i], I)
 			pubKeyHashA := new(big.Int)
@@ -101,7 +94,7 @@ func DynamicSizeRingSignatureGen(message string, ringPublicKeys []ecc_math.ECPoi
 		// 		Y[j] <- c[j]*I+r[j]*H(A[j])
 	}
 
-	X[index] = ecc_math.ScalarMult(ecc_math.ECPoint(ring_sha256.G), k) // X[i] <- k*G
+	X[index] = ecc_math.ScalarMult(G, k) // X[i] <- k*G
 
 	Y[index].Mul(&k, pubKeyHash) // Y[i] <- k*H(A[i])
 	Y[index].Mod(&Y[index], Mod)
@@ -146,7 +139,7 @@ func DynamicSizeRingSignatureVerify(message string, ringPublicKeys []ecc_math.EC
 	var Y = make([]big.Int, participantsLen)
 
 	for i := 0; i < participantsLen; i++ {
-		X[i] = ecc_math.AddECPoints(ecc_math.ScalarMult(ringPublicKeys[i], signature.C[i]), ecc_math.ScalarMult(ecc_math.ECPoint(ring_sha256.G), signature.R[i]))
+		X[i] = ecc_math.AddECPoints(ecc_math.ScalarMult(ringPublicKeys[i], signature.C[i]), ecc_math.ScalarMult(G, signature.R[i]))
 		tmp := new(big.Int)
 		tmp.Mul(&signature.C[i], &signature.I)
 		pubKeyHashA := new(big.Int)
