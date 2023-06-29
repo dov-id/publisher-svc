@@ -1,0 +1,22 @@
+type: object
+required:
+  - i
+  - c
+  - r
+properties:
+  i:
+    type: string
+    description: private key image
+    example: "0xE2D7312D7F5185016B2ACBF16FC301D914E01692F3A7A5472152A78AD6A89F3A"
+  c:
+    type: array
+    example: ["0xD7DEDD344DD3ABF7A598E182F09E820BE6FC3FAB962649D50995447B110439FB", "0x7070421B61BD62F9FB38F20F8F1AABA5A597DC7C85B74F87C572A9CC2F6119BF" ]
+    description: c scalar array
+    items:
+      type: string
+  r:
+    type: array
+    example: [ "0x68B5FA25F76621E6AE6C107FE0C749F09072F1EB8268AFDB6A2BFD6E4A952541", "0xBED6505B77DE241D64B2930921B609786AED1A3288F35D0F45A0352A963406B6" ]
+    description: r scalar array
+    items:
+      type: string

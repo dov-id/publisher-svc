@@ -1,0 +1,31 @@
+post:
+  tags:
+    - Feedbacks
+  summary: Add new feedback
+  operationId: AddFeedback
+  description: Endpoint for adding new feedback to the feedback registry contract.
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/AddFeedback"
+  responses:
+    '200':
+      description: Success
+#      content:
+#        application/json:
+#          schema:
+#            type: object
+#            properties:
+#              data:
+#                type: object
+#                $ref: '#/components/schemas/RingSig'
+    '400':
+      description: Bad request.
+    '500':
+      description: Internal server error.

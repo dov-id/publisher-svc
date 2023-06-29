@@ -1,0 +1,31 @@
+post:
+  tags:
+    - RingSig
+  summary: Generate new ring signature
+  operationId: GenerateRingSignature
+  description: Endpoint for generating new ring signature by given params.
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/GenRingSig"
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                $ref: '#/components/schemas/RingSig'
+    '400':
+      description: Bad request.
+    '500':
+      description: Internal server error.

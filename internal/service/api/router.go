@@ -17,6 +17,11 @@ func (s *Router) router() chi.Router {
 		),
 	)
 	r.Route("/integrations/publisher-svc", func(r chi.Router) {
+		r.Post("/ring", handlers.GenerateRingSignature)
+
+		r.Route("/feedbacks", func(r chi.Router) {
+			r.Post("/", handlers.AddFeedback)
+		})
 	})
 
 	return r
