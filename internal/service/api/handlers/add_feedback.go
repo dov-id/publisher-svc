@@ -39,7 +39,7 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 
 	isVerifiedSig := ring_sha256.DynamicSizeRingSignatureVerify(request.Data.Attributes.Feedback, ECPoints, signature)
 	if !isVerifiedSig {
-		Log(r).WithError(err).Error("signature is not verified")
+		Log(r).Errorf("signature is not verified")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
@@ -57,6 +57,13 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 
 	err = sendFeedbackToContract(request.Data.Attributes.Network, r, request, dbRequest.Id)
 	if err != nil {
+		errorMsg := err.Error()
+
+		err = RequestsQ(r).FilterByIds(dbRequest.Id).Update(data.RequestToUpdate{Status: data.FAILED, Error: &errorMsg})
+		if err != nil {
+			err = errors.Wrap(err, "failed to update request status")
+		}
+
 		Log(r).WithError(err).Errorf("failed to send feedback to contract")
 		ape.RenderErr(w, problems.InternalError())
 		return
@@ -72,7 +79,15 @@ type addFeedbackParams struct {
 	feedbackRegistry *contracts.FeedbackRegistry
 	client           *ethclient.Client
 	auth             *bind.TransactOpts
-	//Set other when finish contract
+	course           []byte
+	i                [32]byte
+	c                [][32]byte
+	r                [][32]byte
+	publicKeys       [][]byte
+	merkleTreeProofs [][][32]byte
+	keys             [][32]byte
+	values           [][32]byte
+	ipfsHash         string
 }
 
 func sendFeedbackToContract(network string, r *http.Request, req requests.AddFeedbackRequest, requestId string) error {
@@ -91,16 +106,13 @@ func sendFeedbackToContract(network string, r *http.Request, req requests.AddFee
 		return errors.Wrap(err, "failed to create new feedback registry instance")
 	}
 
-	//TODO: finish contract and then make tx
-	err = makeAddFeedbackTx(
-		addFeedbackParams{
-			requestId:        requestId,
-			feedbackRegistry: feedbackRegistry,
-			client:           client,
-			auth:             auth,
-		},
-		r,
-	)
+	params := prepareAddFeedbackParams(req)
+	params.client = client
+	params.auth = auth
+	params.requestId = requestId
+	params.feedbackRegistry = feedbackRegistry
+
+	err = makeAddFeedbackTx(params, r)
 	if err != nil {
 		return errors.Wrap(err, "failed to make add feedback transaction")
 	}
@@ -111,7 +123,15 @@ func sendFeedbackToContract(network string, r *http.Request, req requests.AddFee
 func makeAddFeedbackTx(params addFeedbackParams, r *http.Request) error {
 	transaction, err := params.feedbackRegistry.AddFeedback(
 		params.auth,
-		//rest of params
+		params.course,
+		params.i,
+		params.c,
+		params.r,
+		params.publicKeys,
+		params.merkleTreeProofs,
+		params.keys,
+		params.values,
+		params.ipfsHash,
 	)
 	if err != nil {
 		if err.Error() == data.ReplacementTxUnderpricedErr {
@@ -150,4 +170,26 @@ func newDynamicSizeRingSignature(iHex string, cHexArr []string, rHexArr []string
 	signature.C = c
 
 	return signature
+}
+
+func prepareAddFeedbackParams(req requests.AddFeedbackRequest) addFeedbackParams {
+	var params addFeedbackParams
+
+	params.course = helpers.StringToBytes(req.Data.Attributes.Course)
+
+	params.i = helpers.StringToByte32(req.Data.Attributes.Signature.I)
+	params.r = helpers.StringArrToByte32Arr(req.Data.Attributes.Signature.R)
+	params.c = helpers.StringArrToByte32Arr(req.Data.Attributes.Signature.C)
+
+	params.publicKeys = helpers.StringArrToBytesArr(req.Data.Attributes.PublicKeys)
+
+	for _, proof := range req.Data.Attributes.Proofs {
+		params.keys = append(params.keys, helpers.StringToByte32(proof.NodeKey))
+		params.values = append(params.values, helpers.StringToByte32(proof.NodeValue))
+		params.merkleTreeProofs = append(params.merkleTreeProofs, helpers.StringArrToByte32Arr(proof.Proof))
+	}
+
+	params.ipfsHash = req.Data.Attributes.Feedback
+
+	return params
 }

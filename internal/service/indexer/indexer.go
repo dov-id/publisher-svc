@@ -86,8 +86,8 @@ func (i *indexer) processGetFeedbacks(feedbackRegistry *contracts.FeedbackRegist
 	}
 
 	for k, course := range response.Courses {
-		for _, feedbackBytes32 := range response.Feedbacks[k] {
-			feedbackString, err := i.readFeedbackFromIPFS(common.Bytes2Hex(feedbackBytes32[:]))
+		for _, feedback := range response.Feedbacks[k] {
+			feedbackString, err := i.readFeedbackFromIPFS(feedback)
 			if err != nil {
 				return errors.Wrap(err, "failed to read feedback from ipfs")
 			}

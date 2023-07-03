@@ -27,7 +27,7 @@ func (s *Router) router() chi.Router {
 
 		r.Route("/feedbacks", func(r chi.Router) {
 			r.Post("/", handlers.AddFeedback)
-			r.Post("/", handlers.GetFeedbacks)
+			r.Get("/", handlers.GetFeedbacks)
 		})
 	})
 

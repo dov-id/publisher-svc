@@ -29,5 +29,5 @@ type Request struct {
 
 type RequestToUpdate struct {
 	Status RequestsStatus `structs:"status"`
-	Error  *string        `structs:"error"`
+	Error  *string        `structs:"error,omitempty"`
 }
