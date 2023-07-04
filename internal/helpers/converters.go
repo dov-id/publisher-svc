@@ -1,8 +1,15 @@
 package helpers
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 )
+
+func StringToBigInt(str string, base int) *big.Int {
+	num, _ := new(big.Int).SetString(str, base)
+	return num
+}
 
 func StringToBytes(str string) []byte {
 	if str[:2] == "0x" {
@@ -37,17 +44,14 @@ func StringArrToByte32Arr(strs []string) [][32]byte {
 	return result
 }
 
-func StringArrToBytesArr(strs []string) [][]byte {
+func StringArrToBigIntArr(strs []string, base int) []*big.Int {
 	var (
 		size   = len(strs)
-		result = make([][]byte, size)
+		result = make([]*big.Int, size)
 	)
 
 	for i := 0; i < size; i++ {
-		if strs[i][:2] == "0x" {
-			strs[i] = strs[i][2:]
-		}
-		result[i] = common.Hex2Bytes(strs[i])[:]
+		result[i] = StringToBigInt(strs[i], base)
 	}
 
 	return result

@@ -37,7 +37,7 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 
 	signature := newDynamicSizeRingSignature(request.Data.Attributes.Signature.I, request.Data.Attributes.Signature.C, request.Data.Attributes.Signature.R)
 
-	isVerifiedSig := ring_sha256.DynamicSizeRingSignatureVerify(request.Data.Attributes.Feedback, ECPoints, signature)
+	isVerifiedSig := ring_sha256.DynamicSizeRingSignatureVerifyBytes(request.Data.Attributes.Feedback, ECPoints, signature)
 	if !isVerifiedSig {
 		Log(r).Errorf("signature is not verified")
 		ape.RenderErr(w, problems.BadRequest(err)...)
@@ -80,10 +80,11 @@ type addFeedbackParams struct {
 	client           *ethclient.Client
 	auth             *bind.TransactOpts
 	course           []byte
-	i                [32]byte
-	c                [][32]byte
-	r                [][32]byte
-	publicKeys       [][]byte
+	i                *big.Int
+	c                []*big.Int
+	r                []*big.Int
+	publicKeysX      []*big.Int
+	publicKeysY      []*big.Int
 	merkleTreeProofs [][][32]byte
 	keys             [][32]byte
 	values           [][32]byte
@@ -106,13 +107,17 @@ func sendFeedbackToContract(network string, r *http.Request, req requests.AddFee
 		return errors.Wrap(err, "failed to create new feedback registry instance")
 	}
 
-	params := prepareAddFeedbackParams(req)
+	params, err := prepareAddFeedbackParams(req)
+	if err != nil {
+		return errors.Wrap(err, "failed to prepare add feedback params")
+	}
+
 	params.client = client
 	params.auth = auth
 	params.requestId = requestId
 	params.feedbackRegistry = feedbackRegistry
 
-	err = makeAddFeedbackTx(params, r)
+	err = makeAddFeedbackTx(*params, r)
 	if err != nil {
 		return errors.Wrap(err, "failed to make add feedback transaction")
 	}
@@ -127,7 +132,8 @@ func makeAddFeedbackTx(params addFeedbackParams, r *http.Request) error {
 		params.i,
 		params.c,
 		params.r,
-		params.publicKeys,
+		params.publicKeysX,
+		params.publicKeysY,
 		params.merkleTreeProofs,
 		params.keys,
 		params.values,
@@ -152,18 +158,18 @@ func makeAddFeedbackTx(params addFeedbackParams, r *http.Request) error {
 	return nil
 }
 
-func newDynamicSizeRingSignature(iHex string, cHexArr []string, rHexArr []string) ring_sha256.DynamicSizeRingSignature {
+func newDynamicSizeRingSignature(i string, cHexArr []string, rHexArr []string) ring_sha256.DynamicSizeRingSignature {
 	var signature ring_sha256.DynamicSizeRingSignature
 	arraysLen := len(cHexArr)
 
-	signature.I = *common.HexToHash(iHex).Big()
+	signature.I = *helpers.StringToBigInt(i, 10)
 
 	c := make([]big.Int, arraysLen)
 	r := make([]big.Int, arraysLen)
 
 	for i := 0; i < arraysLen; i++ {
-		c[i] = *common.HexToHash(cHexArr[i]).Big()
-		r[i] = *common.HexToHash(rHexArr[i]).Big()
+		c[i] = *helpers.StringToBigInt(cHexArr[i], 10)
+		r[i] = *helpers.StringToBigInt(rHexArr[i], 10)
 	}
 
 	signature.R = r
@@ -172,16 +178,24 @@ func newDynamicSizeRingSignature(iHex string, cHexArr []string, rHexArr []string
 	return signature
 }
 
-func prepareAddFeedbackParams(req requests.AddFeedbackRequest) addFeedbackParams {
+func prepareAddFeedbackParams(req requests.AddFeedbackRequest) (*addFeedbackParams, error) {
 	var params addFeedbackParams
 
 	params.course = helpers.StringToBytes(req.Data.Attributes.Course)
 
-	params.i = helpers.StringToByte32(req.Data.Attributes.Signature.I)
-	params.r = helpers.StringArrToByte32Arr(req.Data.Attributes.Signature.R)
-	params.c = helpers.StringArrToByte32Arr(req.Data.Attributes.Signature.C)
+	params.i = helpers.StringToBigInt(req.Data.Attributes.Signature.I, 10)
+	params.r = helpers.StringArrToBigIntArr(req.Data.Attributes.Signature.R, 10)
+	params.c = helpers.StringArrToBigIntArr(req.Data.Attributes.Signature.C, 10)
 
-	params.publicKeys = helpers.StringArrToBytesArr(req.Data.Attributes.PublicKeys)
+	ECPoints, err := helpers.ConvertHexKeysToECPoints(req.Data.Attributes.PublicKeys)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert hex keys to ec points")
+	}
+
+	for _, point := range ECPoints {
+		params.publicKeysX = append(params.publicKeysX, point.X)
+		params.publicKeysY = append(params.publicKeysY, point.Y)
+	}
 
 	for _, proof := range req.Data.Attributes.Proofs {
 		params.keys = append(params.keys, helpers.StringToByte32(proof.NodeKey))
@@ -191,5 +205,5 @@ func prepareAddFeedbackParams(req requests.AddFeedbackRequest) addFeedbackParams
 
 	params.ipfsHash = req.Data.Attributes.Feedback
 
-	return params
+	return &params, nil
 }

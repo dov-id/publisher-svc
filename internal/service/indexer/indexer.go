@@ -59,7 +59,7 @@ func (i *indexer) listen(_ context.Context) error {
 		return errors.Wrap(err, "failed to init feedback registry contracts")
 	}
 
-	//err = i.getFeedbacks()
+	err = i.getFeedbacks()
 	if err != nil {
 		return errors.Wrap(err, "failed to get feedbacks")
 	}

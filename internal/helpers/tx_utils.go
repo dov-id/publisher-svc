@@ -38,7 +38,7 @@ func GetAuth(client *ethclient.Client, private string) (*bind.TransactOpts, erro
 		return nil, errors.Wrap(err, "failed to suggest gas price")
 	}
 
-	auth.GasLimit = uint64(3000000)
+	auth.GasLimit = uint64(10000000)
 	auth.GasPrice = gasPrice
 
 	auth.Nonce = big.NewInt(int64(nonce))
