@@ -13,8 +13,6 @@ git:
         - "**/*"
 shell:
   setup:
-    - apk update
-    - apk add gcc
     - export CGO_ENABLED=1
     - export GO111MODULE=off
     - export GOOS=linux
@@ -28,6 +26,8 @@ docker:
 shell:
   setup:
     - apk add --no-cache ca-certificates
+    - apk update
+    - apk add gcc
 import:
   - image: builder
     add: /usr/local/bin/publisher-svc
