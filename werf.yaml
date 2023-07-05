@@ -13,7 +13,7 @@ git:
         - "**/*"
 shell:
   setup:
-    - export CGO_ENABLED=0
+    - export CGO_ENABLED=1
     - export GO111MODULE=off
     - export GOOS=linux
     - go build  -o /usr/local/bin/publisher-svc  /go/src/github.com/dov-id/publisher-svc
