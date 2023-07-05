@@ -25,7 +25,7 @@ docker:
   ENTRYPOINT: core
 shell:
   setup:
-    - apk add --no-cache ca-certificates
+    - apk --update add --no-cache musl libstdc++ gcompat libgomp ca-certificates
 import:
   - image: builder
     add: /usr/local/bin/publisher-svc
