@@ -1,6 +1,8 @@
 FROM golang:1.19-alpine as buildbase
 
 RUN apk add git build-base
+RUN apk update
+RUN apk add gcc
 
 WORKDIR /go/src/github.com/dov-id/publisher-svc
 COPY vendor .
