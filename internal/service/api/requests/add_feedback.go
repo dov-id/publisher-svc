@@ -31,7 +31,6 @@ func (r *AddFeedbackRequest) validate() error {
 		"feedback":     validation.Validate(&r.Data.Attributes.Feedback, validation.Required),
 		"signature":    validation.Validate(&r.Data.Attributes.Signature, validation.Required),
 		"public_keys":  validation.Validate(&r.Data.Attributes.PublicKeys, validation.Required),
-		"participants": validation.Validate(&r.Data.Attributes.Participants, validation.Required),
 		"merkle_proof": validation.Validate(&r.Data.Attributes.Proofs, validation.Required),
 	}.Filter()
 }

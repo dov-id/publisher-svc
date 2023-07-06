@@ -79,7 +79,7 @@ type addFeedbackParams struct {
 	feedbackRegistry *contracts.FeedbackRegistry
 	client           *ethclient.Client
 	auth             *bind.TransactOpts
-	course           []byte
+	course           common.Address
 	i                *big.Int
 	c                []*big.Int
 	r                []*big.Int
@@ -181,7 +181,7 @@ func newDynamicSizeRingSignature(i string, cHexArr []string, rHexArr []string) r
 func prepareAddFeedbackParams(req requests.AddFeedbackRequest) (*addFeedbackParams, error) {
 	var params addFeedbackParams
 
-	params.course = helpers.StringToBytes(req.Data.Attributes.Course)
+	params.course = common.HexToAddress(req.Data.Attributes.Course)
 
 	params.i = helpers.StringToBigInt(req.Data.Attributes.Signature.I, 10)
 	params.r = helpers.StringArrToBigIntArr(req.Data.Attributes.Signature.R, 10)

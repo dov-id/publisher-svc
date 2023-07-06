@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math/big"
 
 	"github.com/dov-id/publisher-svc/contracts"
 	"github.com/dov-id/publisher-svc/internal/config"
@@ -11,7 +12,6 @@ import (
 	"github.com/dov-id/publisher-svc/internal/data/postgres"
 	"github.com/dov-id/publisher-svc/internal/helpers"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	shell "github.com/ipfs/go-ipfs-api"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -80,30 +80,42 @@ func (i *indexer) getFeedbacks() error {
 }
 
 func (i *indexer) processGetFeedbacks(feedbackRegistry *contracts.FeedbackRegistry) error {
-	response, err := feedbackRegistry.GetAllFeedbacks(new(bind.CallOpts))
-	if err != nil {
-		return errors.Wrap(err, "failed to get all feedbacks")
-	}
+	var offset = big.NewInt(0)
+	var limit = big.NewInt(15)
 
-	for k, course := range response.Courses {
-		for _, feedback := range response.Feedbacks[k] {
-			feedbackString, err := i.readFeedbackFromIPFS(feedback)
-			if err != nil {
-				return errors.Wrap(err, "failed to read feedback from ipfs")
-			}
+	for {
+		response, err := feedbackRegistry.GetAllFeedbacks(new(bind.CallOpts), offset, limit)
+		if err != nil {
+			return errors.Wrap(err, "failed to get all feedbacks")
+		}
 
-			if feedbackString == nil {
-				return errors.New(data.EmptyFeedbackContentErr)
-			}
+		if len(response.Courses) == 0 {
+			break
+		}
 
-			err = i.FeedbacksQ.Insert(data.Feedback{
-				Course:  common.Bytes2Hex(course),
-				Content: *feedbackString,
-			})
-			if err != nil {
-				return errors.Wrap(err, "failed to insert feedback")
+		for k, course := range response.Courses {
+			for _, feedback := range response.Feedbacks[k] {
+				feedbackString, err := i.readFeedbackFromIPFS(feedback)
+				if err != nil {
+					return errors.Wrap(err, "failed to read feedback from ipfs")
+				}
+
+				if feedbackString == nil {
+					return errors.New(data.EmptyFeedbackContentErr)
+				}
+
+				err = i.FeedbacksQ.Insert(data.Feedback{
+					Course:  course.Hex(),
+					Content: *feedbackString,
+				})
+				if err != nil {
+					return errors.Wrap(err, "failed to insert feedback")
+				}
 			}
 		}
+
+		offset = limit
+		limit = limit.Add(limit, big.NewInt(15))
 	}
 
 	return nil
