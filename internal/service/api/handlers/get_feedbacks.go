@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dov-id/publisher-svc/internal/data"
+	"github.com/dov-id/publisher-svc/internal/helpers"
 	"github.com/dov-id/publisher-svc/internal/service/api/models"
 	"github.com/dov-id/publisher-svc/internal/service/api/requests"
 	"gitlab.com/distributed_lab/ape"
@@ -18,14 +19,22 @@ func GetFeedbacks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	totalCount, err := FeedbacksQ(r).Count().FilterByCourses().GetTotalCount()
+	totalCountStmt := FeedbacksQ(r).Count()
+	feedbacksStmt := FeedbacksQ(r)
+
+	if request.Course != nil {
+		totalCountStmt = totalCountStmt.FilterByCourses(helpers.Trim0xPrefix(*request.Course))
+		feedbacksStmt = feedbacksStmt.FilterByCourses(helpers.Trim0xPrefix(*request.Course))
+	}
+
+	totalCount, err := totalCountStmt.GetTotalCount()
 	if err != nil {
 		Log(r).WithError(err).Errorf("failed to get total count from db")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	feedbacks, err := FeedbacksQ(r).FilterByCourses().Page(request.OffsetPageParams).Select()
+	feedbacks, err := feedbacksStmt.Page(request.OffsetPageParams).Select()
 	if err != nil {
 		Log(r).WithError(err).Errorf("failed to select feedbacks from db")
 		ape.RenderErr(w, problems.InternalError())

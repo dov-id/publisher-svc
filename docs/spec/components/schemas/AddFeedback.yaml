@@ -11,7 +11,7 @@ allOf:
           - course
           - signature
           - public_keys
-          - participants
+#          - participants
           - proofs
           - feedback
         properties:
@@ -34,12 +34,12 @@ allOf:
               take part in signing
             items:
               type: string
-          participants:
-            type: array
-            items:
-              type: string
-            description: participants’ addresses array
-            example: ["0x15de9Fce590fD5e85d1099aF50fF50e978cA4F3B", "0x63223538169D7228b37C9182eD6d2b9B2CfD8F26"]
+#          participants:
+#            type: array
+#            items:
+#              type: string
+#            description: participants’ addresses array
+#            example: ["0x15de9Fce590fD5e85d1099aF50fF50e978cA4F3B", "0x63223538169D7228b37C9182eD6d2b9B2CfD8F26"]
           proofs:
             type: array
             description: list of merkle tree proofs that every address from the addresses list includes is in a corresponding state
@@ -48,3 +48,4 @@ allOf:
           feedback:
             type: string
             description: feedback itself (its ipfs hash)
+            example: "QmcafQDfq4LGzQ6CimzLVBt7rqEAFSwE4ya8uZt9zUSZJr"
