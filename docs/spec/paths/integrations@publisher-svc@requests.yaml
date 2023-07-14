@@ -1,0 +1,23 @@
+get:
+  tags:
+    - Request
+  summary: Get request
+  operationId: GetRequest
+  description: Endpoint for getting request to check its status.
+  parameters:
+    - $ref: '#/components/parameters/requestIdParam'
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                $ref: '#/components/schemas/Request'
+    '400':
+      description: Bad request.
+    '500':
+      description: Internal server error.

@@ -717,9 +717,6 @@ func (r *bufByteReader) ReadByte() (byte, error) {
 // It's recommended to supply a reader that buffers and implements io.ByteReader,
 // as CidFromReader has to do many single-byte reads to decode varints.
 // If the argument only implements io.Reader, single-byte Read calls are used instead.
-//
-// If the Reader is found to yield zero bytes, an io.EOF error is returned directly, in all
-// other error cases, an ErrInvalidCid, wrapping the original error, is returned.
 func CidFromReader(r io.Reader) (int, Cid, error) {
 	// 64 bytes is enough for any CIDv0,
 	// and it's enough for most CIDv1s in practice.
@@ -730,11 +727,6 @@ func CidFromReader(r io.Reader) (int, Cid, error) {
 	// The varint package wants a io.ByteReader, so we must wrap our io.Reader.
 	vers, err := varint.ReadUvarint(br)
 	if err != nil {
-		if err == io.EOF {
-			// First-byte read in ReadUvarint errors with io.EOF, so reader has no data.
-			// Subsequent reads with an EOF will return io.ErrUnexpectedEOF and be wrapped here.
-			return 0, Undef, err
-		}
 		return len(br.dst), Undef, ErrInvalidCid{err}
 	}
 

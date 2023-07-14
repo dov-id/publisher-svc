@@ -1,0 +1,67 @@
+post:
+  tags:
+    - Feedbacks
+  summary: Add new feedback
+  operationId: AddFeedback
+  description: Endpoint for adding new feedback to the feedback registry contract.
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/AddFeedback"
+  responses:
+    '202':
+      description: Accepted
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                $ref: '#/components/schemas/Request'
+    '400':
+      description: Bad request.
+    '500':
+      description: Internal server error.
+
+get:
+  tags:
+    - Feedbacks
+  summary: Get feedbacks
+  operationId: GetFeedbacks
+  description: Endpoint for getting feedbacks.
+  parameters:
+    - $ref: '#/components/parameters/sortingParam'
+    - $ref: '#/components/parameters/pageNumberParam'
+    - $ref: '#/components/parameters/pageLimitParam'
+    - $ref: '#/components/parameters/courseParam'
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/components/schemas/Feedback'
+                meta:
+                  type: object
+                  properties:
+                    total_count:
+                      type: integer
+                      format: int64
+                      description: Total number of feedbacks
+    '400':
+      description: Bad request.
+    '500':
+      description: Internal server error.

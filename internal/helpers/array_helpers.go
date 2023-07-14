@@ -1,25 +1,25 @@
 package helpers
 
-func RemoveDuplicatesStringsArr(arr []string) []string {
-	allKeys := make(map[string]bool)
-	var list []string
-	for _, item := range arr {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
-	}
-	return list
-}
+import (
+	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/ecc_math"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"gitlab.com/distributed_lab/logan/v3/errors"
+)
 
-func RemoveDuplicatesInt64Arr(arr []int64) []int64 {
-	allKeys := make(map[int64]bool)
-	var list []int64
-	for _, item := range arr {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
+func ConvertHexKeysToECPoints(publicKeys []string) ([]ecc_math.ECPoint, error) {
+	var ECPoints = make([]ecc_math.ECPoint, len(publicKeys))
+	for i, key := range publicKeys {
+		if key[:2] == "0x" {
+			key = key[2:]
 		}
+
+		publicECDSA, err := crypto.UnmarshalPubkey(common.Hex2Bytes(key))
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to convert hex to ecdsa")
+		}
+
+		ECPoints[i] = ecc_math.ECPoint{X: publicECDSA.X, Y: publicECDSA.Y}
 	}
-	return list
+	return ECPoints, nil
 }
