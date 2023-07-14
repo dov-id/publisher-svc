@@ -1,0 +1,19 @@
+allOf:
+  - $ref: "#/components/schemas/FeedbackKey"
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - course
+          - content
+        properties:
+          course:
+            type: string
+            description: course identifier (address) for which feedback is intended
+            example: "0x941d04176D6Aeb0e4F5AC55Dad80bC357374CA90"
+          content:
+            type: string
+            description: feedback itself, its content

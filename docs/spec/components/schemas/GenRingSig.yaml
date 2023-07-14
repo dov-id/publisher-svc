@@ -1,0 +1,33 @@
+allOf:
+  - $ref: "#/components/schemas/RingSigKey"
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - message
+          - public_keys
+          - index
+          - private_key
+        properties:
+          message:
+            type: string
+            description: message that will be signed in ring signature
+            example: "Your string message"
+          public_keys:
+            type: array
+            example: ["042fa192fc93d2d20d6f24803465dd3f22e70d7a8a6917c134053c9dca05e7b2f9417575d42103afd5989a425f553706e277b709c2d736f864058b3a1a8c07ef18", "04f521fc7ea86b81a8b8eb4a635c7970ad4d9775a18d793c35c472ace32580e63e62643ed2cc87f9ab1ea934099d5c99bbf4719aab21d22cf5d528ce94b36bf4ee" ]
+            description: array that contains public keys of users that will be sign the message and will 
+              take part in signing
+            items:
+              type: string
+          index:
+            type: integer
+            format: int
+            description: user index to get its public key from `public_keys` array
+            example: 4
+          private_key:
+            type: string
+            description: private key of the user for whom `index` parameter was given

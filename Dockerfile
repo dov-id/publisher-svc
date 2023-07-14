@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine as buildbase
+FROM golang:1.19 as buildbase
 
 RUN apk add git build-base
 
@@ -12,6 +12,6 @@ RUN GOOS=linux go build  -o /usr/local/bin/publisher-svc /go/src/github.com/dov-
 FROM alpine:3.9
 
 COPY --from=buildbase /usr/local/bin/publisher-svc /usr/local/bin/publisher-svc
-RUN apk add --no-cache ca-certificates
+RUN apk --update add --no-cache musl libstdc++ gcompat libgomp ca-certificates
 
 ENTRYPOINT ["publisher-svc"]

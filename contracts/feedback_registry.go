@@ -31,7 +31,7 @@ var (
 
 // FeedbackRegistryMetaData contains all meta data concerning the FeedbackRegistry contract.
 var FeedbackRegistryMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"certIntegrator_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"course_\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"ringSignature_\",\"type\":\"bytes\"},{\"internalType\":\"bytes32[][]\",\"name\":\"merkleTreeProofs_\",\"type\":\"bytes32[][]\"},{\"internalType\":\"bytes32[]\",\"name\":\"keys_\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"values_\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32\",\"name\":\"ipfsHash_\",\"type\":\"bytes32\"}],\"name\":\"addFeedback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"contractFeedbacks\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"course_\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getFeedbacks\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"certIntegrator_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"course_\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"i_\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"c_\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"r_\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"publicKeysX_\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"publicKeysY_\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes32[][]\",\"name\":\"merkleTreeProofs_\",\"type\":\"bytes32[][]\"},{\"internalType\":\"bytes32[]\",\"name\":\"keys_\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"values_\",\"type\":\"bytes32[]\"},{\"internalType\":\"string\",\"name\":\"ipfsHash_\",\"type\":\"string\"}],\"name\":\"addFeedback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"contractFeedbacks\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getAllFeedbacks\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"courses_\",\"type\":\"address[]\"},{\"internalType\":\"string[][]\",\"name\":\"feedbacks_\",\"type\":\"string[][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"course_\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getFeedbacks\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // FeedbackRegistryABI is the input ABI used to generate the binding from.
@@ -180,85 +180,130 @@ func (_FeedbackRegistry *FeedbackRegistryTransactorRaw) Transact(opts *bind.Tran
 	return _FeedbackRegistry.Contract.contract.Transact(opts, method, params...)
 }
 
-// ContractFeedbacks is a free data retrieval call binding the contract method 0x476199db.
+// ContractFeedbacks is a free data retrieval call binding the contract method 0xd1d820b7.
 //
-// Solidity: function contractFeedbacks(bytes , uint256 ) view returns(bytes32)
-func (_FeedbackRegistry *FeedbackRegistryCaller) ContractFeedbacks(opts *bind.CallOpts, arg0 []byte, arg1 *big.Int) ([32]byte, error) {
+// Solidity: function contractFeedbacks(address , uint256 ) view returns(string)
+func (_FeedbackRegistry *FeedbackRegistryCaller) ContractFeedbacks(opts *bind.CallOpts, arg0 common.Address, arg1 *big.Int) (string, error) {
 	var out []interface{}
 	err := _FeedbackRegistry.contract.Call(opts, &out, "contractFeedbacks", arg0, arg1)
 
 	if err != nil {
-		return *new([32]byte), err
+		return *new(string), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
 
 	return out0, err
 
 }
 
-// ContractFeedbacks is a free data retrieval call binding the contract method 0x476199db.
+// ContractFeedbacks is a free data retrieval call binding the contract method 0xd1d820b7.
 //
-// Solidity: function contractFeedbacks(bytes , uint256 ) view returns(bytes32)
-func (_FeedbackRegistry *FeedbackRegistrySession) ContractFeedbacks(arg0 []byte, arg1 *big.Int) ([32]byte, error) {
+// Solidity: function contractFeedbacks(address , uint256 ) view returns(string)
+func (_FeedbackRegistry *FeedbackRegistrySession) ContractFeedbacks(arg0 common.Address, arg1 *big.Int) (string, error) {
 	return _FeedbackRegistry.Contract.ContractFeedbacks(&_FeedbackRegistry.CallOpts, arg0, arg1)
 }
 
-// ContractFeedbacks is a free data retrieval call binding the contract method 0x476199db.
+// ContractFeedbacks is a free data retrieval call binding the contract method 0xd1d820b7.
 //
-// Solidity: function contractFeedbacks(bytes , uint256 ) view returns(bytes32)
-func (_FeedbackRegistry *FeedbackRegistryCallerSession) ContractFeedbacks(arg0 []byte, arg1 *big.Int) ([32]byte, error) {
+// Solidity: function contractFeedbacks(address , uint256 ) view returns(string)
+func (_FeedbackRegistry *FeedbackRegistryCallerSession) ContractFeedbacks(arg0 common.Address, arg1 *big.Int) (string, error) {
 	return _FeedbackRegistry.Contract.ContractFeedbacks(&_FeedbackRegistry.CallOpts, arg0, arg1)
 }
 
-// GetFeedbacks is a free data retrieval call binding the contract method 0x190a500d.
+// GetAllFeedbacks is a free data retrieval call binding the contract method 0x08951a07.
 //
-// Solidity: function getFeedbacks(bytes course_, uint256 offset_, uint256 limit_) view returns(bytes32[])
-func (_FeedbackRegistry *FeedbackRegistryCaller) GetFeedbacks(opts *bind.CallOpts, course_ []byte, offset_ *big.Int, limit_ *big.Int) ([][32]byte, error) {
+// Solidity: function getAllFeedbacks(uint256 offset_, uint256 limit_) view returns(address[] courses_, string[][] feedbacks_)
+func (_FeedbackRegistry *FeedbackRegistryCaller) GetAllFeedbacks(opts *bind.CallOpts, offset_ *big.Int, limit_ *big.Int) (struct {
+	Courses   []common.Address
+	Feedbacks [][]string
+}, error) {
+	var out []interface{}
+	err := _FeedbackRegistry.contract.Call(opts, &out, "getAllFeedbacks", offset_, limit_)
+
+	outstruct := new(struct {
+		Courses   []common.Address
+		Feedbacks [][]string
+	})
+	if err != nil {
+		return *outstruct, err
+	}
+
+	outstruct.Courses = *abi.ConvertType(out[0], new([]common.Address)).(*[]common.Address)
+	outstruct.Feedbacks = *abi.ConvertType(out[1], new([][]string)).(*[][]string)
+
+	return *outstruct, err
+
+}
+
+// GetAllFeedbacks is a free data retrieval call binding the contract method 0x08951a07.
+//
+// Solidity: function getAllFeedbacks(uint256 offset_, uint256 limit_) view returns(address[] courses_, string[][] feedbacks_)
+func (_FeedbackRegistry *FeedbackRegistrySession) GetAllFeedbacks(offset_ *big.Int, limit_ *big.Int) (struct {
+	Courses   []common.Address
+	Feedbacks [][]string
+}, error) {
+	return _FeedbackRegistry.Contract.GetAllFeedbacks(&_FeedbackRegistry.CallOpts, offset_, limit_)
+}
+
+// GetAllFeedbacks is a free data retrieval call binding the contract method 0x08951a07.
+//
+// Solidity: function getAllFeedbacks(uint256 offset_, uint256 limit_) view returns(address[] courses_, string[][] feedbacks_)
+func (_FeedbackRegistry *FeedbackRegistryCallerSession) GetAllFeedbacks(offset_ *big.Int, limit_ *big.Int) (struct {
+	Courses   []common.Address
+	Feedbacks [][]string
+}, error) {
+	return _FeedbackRegistry.Contract.GetAllFeedbacks(&_FeedbackRegistry.CallOpts, offset_, limit_)
+}
+
+// GetFeedbacks is a free data retrieval call binding the contract method 0x443d247b.
+//
+// Solidity: function getFeedbacks(address course_, uint256 offset_, uint256 limit_) view returns(string[])
+func (_FeedbackRegistry *FeedbackRegistryCaller) GetFeedbacks(opts *bind.CallOpts, course_ common.Address, offset_ *big.Int, limit_ *big.Int) ([]string, error) {
 	var out []interface{}
 	err := _FeedbackRegistry.contract.Call(opts, &out, "getFeedbacks", course_, offset_, limit_)
 
 	if err != nil {
-		return *new([][32]byte), err
+		return *new([]string), err
 	}
 
-	out0 := *abi.ConvertType(out[0], new([][32]byte)).(*[][32]byte)
+	out0 := *abi.ConvertType(out[0], new([]string)).(*[]string)
 
 	return out0, err
 
 }
 
-// GetFeedbacks is a free data retrieval call binding the contract method 0x190a500d.
+// GetFeedbacks is a free data retrieval call binding the contract method 0x443d247b.
 //
-// Solidity: function getFeedbacks(bytes course_, uint256 offset_, uint256 limit_) view returns(bytes32[])
-func (_FeedbackRegistry *FeedbackRegistrySession) GetFeedbacks(course_ []byte, offset_ *big.Int, limit_ *big.Int) ([][32]byte, error) {
+// Solidity: function getFeedbacks(address course_, uint256 offset_, uint256 limit_) view returns(string[])
+func (_FeedbackRegistry *FeedbackRegistrySession) GetFeedbacks(course_ common.Address, offset_ *big.Int, limit_ *big.Int) ([]string, error) {
 	return _FeedbackRegistry.Contract.GetFeedbacks(&_FeedbackRegistry.CallOpts, course_, offset_, limit_)
 }
 
-// GetFeedbacks is a free data retrieval call binding the contract method 0x190a500d.
+// GetFeedbacks is a free data retrieval call binding the contract method 0x443d247b.
 //
-// Solidity: function getFeedbacks(bytes course_, uint256 offset_, uint256 limit_) view returns(bytes32[])
-func (_FeedbackRegistry *FeedbackRegistryCallerSession) GetFeedbacks(course_ []byte, offset_ *big.Int, limit_ *big.Int) ([][32]byte, error) {
+// Solidity: function getFeedbacks(address course_, uint256 offset_, uint256 limit_) view returns(string[])
+func (_FeedbackRegistry *FeedbackRegistryCallerSession) GetFeedbacks(course_ common.Address, offset_ *big.Int, limit_ *big.Int) ([]string, error) {
 	return _FeedbackRegistry.Contract.GetFeedbacks(&_FeedbackRegistry.CallOpts, course_, offset_, limit_)
 }
 
-// AddFeedback is a paid mutator transaction binding the contract method 0x2676c4aa.
+// AddFeedback is a paid mutator transaction binding the contract method 0x9c72cbcf.
 //
-// Solidity: function addFeedback(bytes course_, bytes ringSignature_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, bytes32 ipfsHash_) returns()
-func (_FeedbackRegistry *FeedbackRegistryTransactor) AddFeedback(opts *bind.TransactOpts, course_ []byte, ringSignature_ []byte, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ [32]byte) (*types.Transaction, error) {
-	return _FeedbackRegistry.contract.Transact(opts, "addFeedback", course_, ringSignature_, merkleTreeProofs_, keys_, values_, ipfsHash_)
+// Solidity: function addFeedback(address course_, uint256 i_, uint256[] c_, uint256[] r_, uint256[] publicKeysX_, uint256[] publicKeysY_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, string ipfsHash_) returns()
+func (_FeedbackRegistry *FeedbackRegistryTransactor) AddFeedback(opts *bind.TransactOpts, course_ common.Address, i_ *big.Int, c_ []*big.Int, r_ []*big.Int, publicKeysX_ []*big.Int, publicKeysY_ []*big.Int, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ string) (*types.Transaction, error) {
+	return _FeedbackRegistry.contract.Transact(opts, "addFeedback", course_, i_, c_, r_, publicKeysX_, publicKeysY_, merkleTreeProofs_, keys_, values_, ipfsHash_)
 }
 
-// AddFeedback is a paid mutator transaction binding the contract method 0x2676c4aa.
+// AddFeedback is a paid mutator transaction binding the contract method 0x9c72cbcf.
 //
-// Solidity: function addFeedback(bytes course_, bytes ringSignature_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, bytes32 ipfsHash_) returns()
-func (_FeedbackRegistry *FeedbackRegistrySession) AddFeedback(course_ []byte, ringSignature_ []byte, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ [32]byte) (*types.Transaction, error) {
-	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, ringSignature_, merkleTreeProofs_, keys_, values_, ipfsHash_)
+// Solidity: function addFeedback(address course_, uint256 i_, uint256[] c_, uint256[] r_, uint256[] publicKeysX_, uint256[] publicKeysY_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, string ipfsHash_) returns()
+func (_FeedbackRegistry *FeedbackRegistrySession) AddFeedback(course_ common.Address, i_ *big.Int, c_ []*big.Int, r_ []*big.Int, publicKeysX_ []*big.Int, publicKeysY_ []*big.Int, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ string) (*types.Transaction, error) {
+	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, i_, c_, r_, publicKeysX_, publicKeysY_, merkleTreeProofs_, keys_, values_, ipfsHash_)
 }
 
-// AddFeedback is a paid mutator transaction binding the contract method 0x2676c4aa.
+// AddFeedback is a paid mutator transaction binding the contract method 0x9c72cbcf.
 //
-// Solidity: function addFeedback(bytes course_, bytes ringSignature_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, bytes32 ipfsHash_) returns()
-func (_FeedbackRegistry *FeedbackRegistryTransactorSession) AddFeedback(course_ []byte, ringSignature_ []byte, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ [32]byte) (*types.Transaction, error) {
-	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, ringSignature_, merkleTreeProofs_, keys_, values_, ipfsHash_)
+// Solidity: function addFeedback(address course_, uint256 i_, uint256[] c_, uint256[] r_, uint256[] publicKeysX_, uint256[] publicKeysY_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, string ipfsHash_) returns()
+func (_FeedbackRegistry *FeedbackRegistryTransactorSession) AddFeedback(course_ common.Address, i_ *big.Int, c_ []*big.Int, r_ []*big.Int, publicKeysX_ []*big.Int, publicKeysY_ []*big.Int, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ string) (*types.Transaction, error) {
+	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, i_, c_, r_, publicKeysX_, publicKeysY_, merkleTreeProofs_, keys_, values_, ipfsHash_)
 }
