@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/dov-id/publisher-svc/internal/service/api/models"
 	"github.com/dov-id/publisher-svc/internal/service/api/requests"
+	"github.com/dov-id/publisher-svc/internal/service/api/responses"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
@@ -36,6 +36,6 @@ func GetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ape.Render(w, models.NewRequestResponse(*req))
+	ape.Render(w, responses.NewRequestResponse(*req))
 	return
 }

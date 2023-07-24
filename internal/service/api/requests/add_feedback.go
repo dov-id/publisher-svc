@@ -26,11 +26,11 @@ func NewAddFeedbackRequest(r *http.Request) (AddFeedbackRequest, error) {
 
 func (r *AddFeedbackRequest) validate() error {
 	return validation.Errors{
-		"course":       validation.Validate(&r.Data.Attributes.Course, validation.Required),
-		"network":      validation.Validate(&r.Data.Attributes.Network, validation.In(data.EthereumNetwork, data.PolygonNetwork, data.QNetwork)),
-		"feedback":     validation.Validate(&r.Data.Attributes.Feedback, validation.Required),
-		"signature":    validation.Validate(&r.Data.Attributes.Signature, validation.Required),
-		"public_keys":  validation.Validate(&r.Data.Attributes.PublicKeys, validation.Required),
-		"merkle_proof": validation.Validate(&r.Data.Attributes.Proofs, validation.Required),
+		"course":      validation.Validate(&r.Data.Attributes.Course, validation.Required),
+		"network":     validation.Validate(&r.Data.Attributes.Network, validation.In(data.EthereumNetwork, data.PolygonNetwork, data.QNetwork)),
+		"feedback":    validation.Validate(&r.Data.Attributes.Feedback, validation.Required),
+		"signature":   validation.Validate(&r.Data.Attributes.Signature, validation.Required),
+		"public_keys": validation.Validate(&r.Data.Attributes.PublicKeys, validation.Required),
+		"proofs":      validation.Validate(&r.Data.Attributes.Proofs, validation.Required),
 	}.Filter()
 }

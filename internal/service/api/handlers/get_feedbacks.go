@@ -5,8 +5,8 @@ import (
 
 	"github.com/dov-id/publisher-svc/internal/data"
 	"github.com/dov-id/publisher-svc/internal/helpers"
-	"github.com/dov-id/publisher-svc/internal/service/api/models"
 	"github.com/dov-id/publisher-svc/internal/service/api/requests"
+	"github.com/dov-id/publisher-svc/internal/service/api/responses"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
@@ -41,7 +41,7 @@ func GetFeedbacks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := models.NewFeedbackListResponse(feedbacks, int64(request.OffsetPageParams.PageNumber*request.OffsetPageParams.Limit))
+	response := responses.NewFeedbackListResponse(feedbacks, int64(request.OffsetPageParams.PageNumber*request.OffsetPageParams.Limit))
 	response.Meta.TotalCount = totalCount
 	response.Links = data.GetOffsetLinksForPGParams(r, request.OffsetPageParams)
 	ape.Render(w, response)

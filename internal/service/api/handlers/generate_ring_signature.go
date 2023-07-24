@@ -5,8 +5,8 @@ import (
 
 	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/signatures/ring_sha256"
 	"github.com/dov-id/publisher-svc/internal/helpers"
-	"github.com/dov-id/publisher-svc/internal/service/api/models"
 	"github.com/dov-id/publisher-svc/internal/service/api/requests"
+	"github.com/dov-id/publisher-svc/internal/service/api/responses"
 	"github.com/ethereum/go-ethereum/common"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -31,6 +31,6 @@ func GenerateRingSignature(w http.ResponseWriter, r *http.Request) {
 
 	signature := ring_sha256.DynamicSizeRingSignatureGenBytes(request.Data.Attributes.Message, ECPoints, request.Data.Attributes.Index, *privateKeyHash.Big())
 
-	ape.Render(w, models.NewRingSignatureResponse(signature))
+	ape.Render(w, responses.NewRingSignatureResponse(signature))
 	return
 }

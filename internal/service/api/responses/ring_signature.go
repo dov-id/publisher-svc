@@ -1,4 +1,4 @@
-package models
+package responses
 
 import (
 	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/signatures/ring_sha256"
