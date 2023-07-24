@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/dov-id/publisher-svc/internal/data"
-	"github.com/dov-id/publisher-svc/internal/helpers"
 	"github.com/dov-id/publisher-svc/internal/service/api/requests"
 	"github.com/dov-id/publisher-svc/internal/service/api/responses"
 	"gitlab.com/distributed_lab/ape"
@@ -23,8 +22,8 @@ func GetFeedbacks(w http.ResponseWriter, r *http.Request) {
 	feedbacksStmt := FeedbacksQ(r)
 
 	if request.Course != nil {
-		totalCountStmt = totalCountStmt.FilterByCourses(helpers.Trim0xPrefix(*request.Course))
-		feedbacksStmt = feedbacksStmt.FilterByCourses(helpers.Trim0xPrefix(*request.Course))
+		totalCountStmt = totalCountStmt.FilterByCourses(*request.Course)
+		feedbacksStmt = feedbacksStmt.FilterByCourses(*request.Course)
 	}
 
 	totalCount, err := totalCountStmt.GetTotalCount()
