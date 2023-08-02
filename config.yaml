@@ -8,40 +8,29 @@ db:
 ipfs:
   url: "localhost:5001"
 
-indexer:
-  timeout: 30s
-
-feedback_registry:
-  list:
-    - network: ethereum
-      address: contract_addr
-    - network: polygon
-      address: contract_addr
-    - network: q
-      address: contract_addr
+timeouts:
+  indexer: 30s
 
 networks:
   list:
     - name: ethereum
-      rpc_url: wss://...
-      https_url: https://...
-      key: api_key
+      rpc_provider_ws_url: wss://...
+      block_explorer_api_url: https://...
+      block_explorer_api_key: api_key
+      feedback_registry_address: contract_address
+      wallet_private_key: private_key
     - name: polygon
-      rpc_url: rpc_url
-      https_url: https_url
-      key: api_key
+      rpc_provider_ws_url: wss://...
+      block_explorer_api_url: https://...
+      block_explorer_api_key: api_key
+      feedback_registry_address: contract_address
+      wallet_private_key: private_key
     - name: q
-      rpc_url: rpc_url
-      https_url: https_url
-      key: private_key
-    - name: metamask
-      rpc_url: rpc_url
-      https_url: https_url
-      key: private_key
-    - name: infura
-      rpc_url: rpc_url
-      https_url: https_url
-      key: api_key
+      rpc_provider_ws_url: wss://...
+      block_explorer_api_url: https://...
+      block_explorer_api_key: api_key
+      feedback_registry_address: contract_address
+      wallet_private_key: private_key
 
 listener:
   addr: :8000

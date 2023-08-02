@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/dov-id/publisher-svc/internal/data"
 	"github.com/fatih/structs"
+	pkgErrors "github.com/pkg/errors"
 	"gitlab.com/distributed_lab/kit/pgdb"
 )
 
@@ -31,14 +32,14 @@ func NewFeedbacksQ(db *pgdb.DB) data.Feedbacks {
 }
 
 func (q FeedbacksQ) New() data.Feedbacks {
-	return NewFeedbacksQ(q.db)
+	return NewFeedbacksQ(q.db.Clone())
 }
 
 func (q FeedbacksQ) Get() (*data.Feedback, error) {
 	var result data.Feedback
 	err := q.db.Get(&result, q.selectBuilder)
 
-	if err == sql.ErrNoRows {
+	if pkgErrors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 
@@ -54,11 +55,11 @@ func (q FeedbacksQ) Select() ([]data.Feedback, error) {
 }
 
 func (q FeedbacksQ) Insert(user data.Feedback) error {
-	query := sq.Insert(feedbacksTableName).
-		SetMap(structs.Map(user)).
-		Suffix("ON CONFLICT (course, content) DO NOTHING")
-
-	return q.db.Exec(query)
+	return q.db.Exec(
+		sq.Insert(feedbacksTableName).
+			SetMap(structs.Map(user)).
+			Suffix("ON CONFLICT (course, content) DO NOTHING"),
+	)
 }
 
 func (q FeedbacksQ) Delete() error {
