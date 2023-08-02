@@ -16,6 +16,7 @@ func (s *Router) router() chi.Router {
 		ape.CtxMiddleware(
 			handlers.CtxLog(s.log),
 			handlers.CtxCfg(s.cfg),
+			handlers.CtxParentCtx(s.ctx),
 			handlers.CtxRequestsQ(postgres.NewRequestsQ(s.cfg.DB().Clone())),
 			handlers.CtxFeedbacksQ(postgres.NewFeedbacksQ(s.cfg.DB().Clone())),
 		),

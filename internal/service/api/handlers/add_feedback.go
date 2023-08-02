@@ -63,7 +63,7 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = sendFeedbackToContract(r.Context(), request, addFeedbackParams{
+	err = sendFeedbackToContract(ParentCtx(r), request, addFeedbackParams{
 		request:    dbRequest,
 		requestsQ:  RequestsQ(r),
 		logger:     Log(r),
