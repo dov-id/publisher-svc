@@ -180,11 +180,3 @@ func (i *indexer) readFeedbackFromIPFS(ipfsHash string) (*string, error) {
 
 	return &feedback, nil
 }
-
-//QmdsucMTAVtKHBb92FbLH7nJ1EX7FQL7Q5AeF1df7GcuVi
-//QmWShnBsQgQdC5dJkfQiuvtY4FgrcTq6YfRf4EyTyksBzF
-//QmNdfuZ6jVHcesyHP47G7S87Z11W94CpzTKKg2EN7TFWmq
-//QmS9ErDVxHXRNMJRJ5i3bp1zxCZzKP8QXXNH1yUR6dWeKZ
-//QmNqQKFq7xqQz76aGTihW8UJvRmat52i3rSKjDMmDpHmVi
-//QmPvBTYmUfeJoVSbt5h1ECyR2eQ9DLZMAM8Tqu4JkKkP7o
-//QmXgdAmiqDa27bw7RmgCp8xTNqFegjbq37EwvjErDGh4pL
