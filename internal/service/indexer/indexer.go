@@ -12,6 +12,7 @@ import (
 	"github.com/dov-id/publisher-svc/internal/data/postgres"
 	"github.com/dov-id/publisher-svc/internal/helpers"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	ipfs "github.com/ipfs/go-ipfs-api"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/distributed_lab/running"
@@ -23,11 +24,11 @@ const (
 
 func NewIndexer(cfg config.Config) Indexer {
 	return &indexer{
-		cfg:                   cfg,
-		log:                   cfg.Log(),
-		FeedbacksQ:            postgres.NewFeedbacksQ(cfg.DB().Clone()),
-		Ipfs:                  ipfs.NewShell(cfg.Ipfs().Url),
-		LastHandledFeedbackId: 0,
+		cfg:                 cfg,
+		log:                 cfg.Log(),
+		FeedbacksQ:          postgres.NewFeedbacksQ(cfg.DB().Clone()),
+		Ipfs:                ipfs.NewShell(cfg.Ipfs().Url),
+		LastHandledFeedback: make(map[common.Address]int64),
 	}
 }
 
@@ -46,7 +47,7 @@ func (i *indexer) Run(ctx context.Context) {
 func (i *indexer) listen(ctx context.Context) error {
 	i.log.Debugf("start feedback indexation")
 
-	err := i.getFeedbacks(ctx)
+	err := i.startFeedbackIndexation(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get feedbacks")
 	}
@@ -55,14 +56,14 @@ func (i *indexer) listen(ctx context.Context) error {
 	return nil
 }
 
-func (i *indexer) getFeedbacks(ctx context.Context) error {
+func (i *indexer) startFeedbackIndexation(ctx context.Context) error {
 	feedbackRegistries, err := helpers.GetFeedbackRegistriesFromCtx(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to get feedbacks registries from ctx")
 	}
 
 	for network, contract := range feedbackRegistries {
-		err = i.processGetFeedbacks(contract)
+		err = i.indexFeedbacks(contract)
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("failed to get feebacks from `%s`", network))
 		}
@@ -71,26 +72,38 @@ func (i *indexer) getFeedbacks(ctx context.Context) error {
 	return nil
 }
 
-func (i *indexer) processGetFeedbacks(feedbackRegistry *contracts.FeedbackRegistry) error {
-	var offset = big.NewInt(i.LastHandledFeedbackId)
+func (i *indexer) indexFeedbacks(feedbackRegistry *contracts.FeedbackRegistry) error {
+	err := i.getCourses(feedbackRegistry)
+	if err != nil {
+		return errors.Wrap(err, "failed to get courses")
+	}
+
+	err = i.getFeedbacks(feedbackRegistry)
+	if err != nil {
+		return errors.Wrap(err, "failed to get feedbacks")
+	}
+
+	return nil
+}
+
+func (i *indexer) getCourses(feedbackRegistry *contracts.FeedbackRegistry) error {
+	var offset = big.NewInt(0)
 	var limit = big.NewInt(15)
 
 	for {
-		response, err := feedbackRegistry.GetAllFeedbacks(new(bind.CallOpts), offset, limit)
+		courses, err := feedbackRegistry.GetCourses(new(bind.CallOpts), offset, limit)
 		if err != nil {
-			return errors.Wrap(err, "failed to get all feedbacks")
+			return errors.Wrap(err, "failed to get courses")
 		}
 
-		if len(response.Courses) == 0 {
+		if len(courses) == 0 {
 			break
 		}
 
-		for k, course := range response.Courses {
-			for _, feedback := range response.Feedbacks[k] {
-				err = i.processFeedback(int64(k), course.Hex(), feedback)
-				if err != nil {
-					return errors.Wrap(err, "failed to process feedback")
-				}
+		for _, course := range courses {
+			_, isPresent := i.LastHandledFeedback[course]
+			if !isPresent {
+				i.LastHandledFeedback[course] = 0
 			}
 		}
 
@@ -100,7 +113,36 @@ func (i *indexer) processGetFeedbacks(feedbackRegistry *contracts.FeedbackRegist
 	return nil
 }
 
-func (i *indexer) processFeedback(index int64, course, feedback string) error {
+func (i *indexer) getFeedbacks(feedbackRegistry *contracts.FeedbackRegistry) error {
+	for course, lastFeedbackNumber := range i.LastHandledFeedback {
+		var offset = big.NewInt(lastFeedbackNumber)
+		var limit = big.NewInt(15)
+
+		for {
+			feedbacks, err := feedbackRegistry.GetFeedbacks(new(bind.CallOpts), course, offset, limit)
+			if err != nil {
+				return errors.Wrap(err, "failed to get all feedbacks")
+			}
+
+			if len(feedbacks) == 0 {
+				break
+			}
+
+			for _, feedback := range feedbacks {
+				err = i.processFeedback(course, feedback)
+				if err != nil {
+					return errors.Wrap(err, "failed to process feedback")
+				}
+			}
+
+			offset.Add(offset, limit)
+		}
+	}
+
+	return nil
+}
+
+func (i *indexer) processFeedback(course common.Address, feedback string) error {
 	feedbackString, err := i.readFeedbackFromIPFS(feedback)
 	if err != nil {
 		return errors.Wrap(err, "failed to read feedback from ipfs")
@@ -111,14 +153,14 @@ func (i *indexer) processFeedback(index int64, course, feedback string) error {
 	}
 
 	err = i.FeedbacksQ.Insert(data.Feedback{
-		Course:  course,
+		Course:  course.Hex(),
 		Content: *feedbackString,
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to insert feedback")
 	}
 
-	i.LastHandledFeedbackId = index
+	i.LastHandledFeedback[course]++
 
 	return nil
 }
@@ -138,3 +180,11 @@ func (i *indexer) readFeedbackFromIPFS(ipfsHash string) (*string, error) {
 
 	return &feedback, nil
 }
+
+//QmdsucMTAVtKHBb92FbLH7nJ1EX7FQL7Q5AeF1df7GcuVi
+//QmWShnBsQgQdC5dJkfQiuvtY4FgrcTq6YfRf4EyTyksBzF
+//QmNdfuZ6jVHcesyHP47G7S87Z11W94CpzTKKg2EN7TFWmq
+//QmS9ErDVxHXRNMJRJ5i3bp1zxCZzKP8QXXNH1yUR6dWeKZ
+//QmNqQKFq7xqQz76aGTihW8UJvRmat52i3rSKjDMmDpHmVi
+//QmPvBTYmUfeJoVSbt5h1ECyR2eQ9DLZMAM8Tqu4JkKkP7o
+//QmXgdAmiqDa27bw7RmgCp8xTNqFegjbq37EwvjErDGh4pL
