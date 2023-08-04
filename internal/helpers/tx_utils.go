@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/dov-id/publisher-svc/internal/config"
 	"github.com/dov-id/publisher-svc/internal/data"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -12,55 +13,39 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-func GetAuth(client *ethclient.Client, private string) (*bind.TransactOpts, error) {
-	chainID, err := client.ChainID(context.Background())
+func GetAuth(ctx context.Context, client *ethclient.Client, walletCfg *config.WalletCfg) (*bind.TransactOpts, error) {
+	chainID, err := client.ChainID(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get chain id")
 	}
 
-	privateKey, fromAddress, err := GetKeys(private)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get keys")
-	}
-
-	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	auth, err := bind.NewKeyedTransactorWithChainID(walletCfg.PrivateKey, chainID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create transaction signer")
 	}
 
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	nonce, err := client.PendingNonceAt(ctx, walletCfg.Address)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get nonce")
 	}
-
-	gasPrice, err := client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to suggest gas price")
-	}
-
-	auth.GasLimit = uint64(10000000)
-	auth.GasPrice = gasPrice
 
 	auth.Nonce = big.NewInt(int64(nonce))
 
 	return auth, nil
 }
 
-func WaitForTransactionMined(client *ethclient.Client, transaction *types.Transaction, log *logan.Entry, reqId string, requestsQ data.Requests) {
-	var (
-		err   error
-		mined = make(chan struct{})
-		ctx   = context.Background()
-	)
+func WaitForTransactionMined(ctx context.Context, client *ethclient.Client, transaction *types.Transaction, log *logan.Entry, request data.Request, requestsQ data.Requests) {
+	var err error
 
 	go func() {
 		log.WithField("tx", transaction.Hash().Hex()).Debugf("waiting to mine")
 
 		_, err = bind.WaitMined(ctx, client, transaction)
 		if err != nil {
-			errorMsg := err.Error()
+			request.Status = data.RequestsStatusFailed
+			request.Error = err.Error()
 
-			err = requestsQ.FilterByIds(reqId).Update(data.RequestToUpdate{Status: data.FAILED, Error: &errorMsg})
+			err = requestsQ.Update(request)
 			if err != nil {
 				err = errors.Wrap(err, "failed to update request status")
 			}
@@ -68,13 +53,12 @@ func WaitForTransactionMined(client *ethclient.Client, transaction *types.Transa
 			panic(errors.Wrap(err, "failed to mine transaction"))
 		}
 
-		err = requestsQ.FilterByIds(reqId).Update(data.RequestToUpdate{Status: data.SUCCESS})
+		request.Status = data.RequestsStatusSuccess
+		err = requestsQ.Update(request)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to update request status"))
 		}
 
 		log.WithField("tx", transaction.Hash().Hex()).Debugf("was mined")
-
-		close(mined)
 	}()
 }
