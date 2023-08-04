@@ -3,11 +3,10 @@ package indexer
 import (
 	"context"
 
-	"github.com/dov-id/publisher-svc/contracts"
 	"github.com/dov-id/publisher-svc/internal/config"
 	"github.com/dov-id/publisher-svc/internal/data"
-	"github.com/ethereum/go-ethereum/ethclient"
-	shell "github.com/ipfs/go-ipfs-api"
+	"github.com/ethereum/go-ethereum/common"
+	ipfs "github.com/ipfs/go-ipfs-api"
 	"gitlab.com/distributed_lab/logan/v3"
 )
 
@@ -19,11 +18,10 @@ type indexer struct {
 	cfg config.Config
 	log *logan.Entry
 
-	FeedbacksQ data.Feedbacks
+	LastHandledFeedback map[common.Address]int64
 
-	Shell            *shell.Shell
-	Clients          map[string]*ethclient.Client
-	FeedbackRegistry map[string]*contracts.FeedbackRegistry
+	FeedbacksQ data.Feedbacks
+	Ipfs       *ipfs.Shell
 }
 
 func Run(cfg config.Config, ctx context.Context) {

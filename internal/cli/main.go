@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/alecthomas/kingpin"
 	"github.com/dov-id/publisher-svc/internal/config"
 	"github.com/dov-id/publisher-svc/internal/service"
@@ -39,7 +41,7 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		service.Run(cfg)
+		service.Run(context.Background(), cfg)
 	case migrateUpCmd.FullCommand():
 		err = MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():
