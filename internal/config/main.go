@@ -14,10 +14,9 @@ type Config interface {
 	types.Copuser
 	comfig.Listenerer
 
-	Indexer() *IndexerCfg
+	Timeouts() *TimeoutsCfg
 	Ipfs() *IpfsCfg
 	Networks() *NetworksCfg
-	FeedbackRegistry() *FeedbackRegistryCfg
 }
 
 type config struct {
@@ -27,7 +26,7 @@ type config struct {
 	comfig.Listenerer
 	getter kv.Getter
 
-	indexer          comfig.Once
+	timeouts         comfig.Once
 	ipfs             comfig.Once
 	networks         comfig.Once
 	feedbackRegistry comfig.Once

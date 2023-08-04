@@ -14,6 +14,7 @@ type ctxKey int
 const (
 	logCtxKey ctxKey = iota
 	cfgCtxKey
+	parentCtxCtxKey
 	requestsCtxKey
 	feedbacksCtxKey
 )
@@ -56,4 +57,14 @@ func CtxCfg(entry config.Config) func(context.Context) context.Context {
 
 func Cfg(r *http.Request) config.Config {
 	return r.Context().Value(cfgCtxKey).(config.Config)
+}
+
+func ParentCtx(r *http.Request) context.Context {
+	return r.Context().Value(parentCtxCtxKey).(context.Context)
+}
+
+func CtxParentCtx(entry context.Context) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, parentCtxCtxKey, entry)
+	}
 }
