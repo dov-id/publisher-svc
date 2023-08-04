@@ -1,0 +1,43 @@
+log:
+  level: debug
+  disable_sentry: true
+
+db:
+  url: db_url
+
+ipfs:
+  url: "localhost:5001"
+
+timeouts:
+  indexer: 30s
+
+networks:
+  list:
+    - name: ethereum
+      rpc_provider_ws_url: wss://...
+      block_explorer_api_url: https://...
+      block_explorer_api_key: api_key
+      feedback_registry_address: contract_address
+      wallet_private_key: private_key
+    - name: polygon
+      rpc_provider_ws_url: wss://...
+      block_explorer_api_url: https://...
+      block_explorer_api_key: api_key
+      feedback_registry_address: contract_address
+      wallet_private_key: private_key
+    - name: q
+      rpc_provider_ws_url: wss://...
+      block_explorer_api_url: https://...
+      block_explorer_api_key: api_key
+      feedback_registry_address: contract_address
+      wallet_private_key: private_key
+
+listener:
+  addr: :8000
+
+cop:
+  disabled: true
+  endpoint: "http://..."
+  upstream: "http://..."
+  service_name: publisher-svc
+  service_port: 80

@@ -1,0 +1,25 @@
+allOf:
+  - $ref: "#/components/schemas/RequestKey"
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - id
+          - status
+          - error
+        properties:
+          id:
+            type: string
+            description: uuid of request to check its status
+            example: "550e8400-e29b-41d4-a716-446655440000"
+          status:
+            type: string
+            enum: [pending,in progress,failed,success]
+            description: the request status, that can be pending, in progress, success and failed
+            example: "failed"
+          error:
+            type: string
+            description: error in case if request was failed

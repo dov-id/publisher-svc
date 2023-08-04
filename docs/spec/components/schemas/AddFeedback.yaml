@@ -1,0 +1,51 @@
+allOf:
+  - $ref: "#/components/schemas/RingSigKey"
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - network
+          - course
+          - signature
+          - public_keys
+#          - participants
+          - proofs
+          - feedback
+        properties:
+          network:
+            type: string
+            enum: [ethereum, polygon, q]
+            description: network to publish feedback
+            example: "polygon"
+          course:
+            type: string
+            description: course identifier (address) for which feedback is intended
+            example: "0x941d04176D6Aeb0e4F5AC55Dad80bC357374CA90"
+          signature:
+            description: ring signature that signed ipfs hash
+            $ref: "#/components/schemas/RingSigAttr"
+          public_keys:
+            type: array
+            example: [ "ad1badd4e1f29b05927fc40db1de2ee4efdffe824e3d5768a475dfe557a4ea29", "417575d42103afd5989a425f553706e277b709c2d736f864058b3a1a8c07ef18" ]
+            description: array that contains public keys of users that will be sign the message and will
+              take part in signing
+            items:
+              type: string
+#          participants:
+#            type: array
+#            items:
+#              type: string
+#            description: participants’ addresses array
+#            example: ["0x15de9Fce590fD5e85d1099aF50fF50e978cA4F3B", "0x63223538169D7228b37C9182eD6d2b9B2CfD8F26"]
+          proofs:
+            type: array
+            description: list of merkle tree proofs that every address from the addresses list includes is in a corresponding state
+            items:
+              $ref: "#/components/schemas/SMTProof"
+          feedback:
+            type: string
+            description: feedback itself (its ipfs hash)
+            example: "QmcafQDfq4LGzQ6CimzLVBt7rqEAFSwE4ya8uZt9zUSZJr"

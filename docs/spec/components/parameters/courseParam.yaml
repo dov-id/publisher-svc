@@ -1,0 +1,6 @@
+in: query
+name: 'filter[course]'
+required: false
+schema:
+  type: string
+description: The course address to get feedbacks for.
