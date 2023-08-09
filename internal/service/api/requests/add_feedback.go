@@ -12,9 +12,7 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type AddFeedbackRequest struct {
-	Data resources.AddFeedback `json:"data"`
-}
+type AddFeedbackRequest resources.AddFeedbackRequest
 
 func NewAddFeedbackRequest(r *http.Request) (AddFeedbackRequest, error) {
 	var request AddFeedbackRequest
@@ -38,9 +36,7 @@ func (r *AddFeedbackRequest) validate() error {
 		"feedback": validation.Validate(
 			&r.Data.Attributes.Feedback, validation.Required, validation.By(MustBeValidCID),
 		),
-		"signature":   validation.Validate(&r.Data.Attributes.Signature, validation.Required),
-		"public_keys": validation.Validate(&r.Data.Attributes.PublicKeys, validation.Required),
-		"proofs":      validation.Validate(&r.Data.Attributes.Proofs, validation.Required),
+		"zk_proof": validation.Validate(&r.Data.Attributes.ZkProof, validation.Required),
 	}.Filter()
 }
 

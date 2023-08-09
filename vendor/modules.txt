@@ -122,6 +122,18 @@ github.com/hashicorp/hcl/json/token
 # github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c
 ## explicit; go 1.18
 github.com/holiman/uint256
+# github.com/iden3/go-iden3-crypto v0.0.15
+## explicit; go 1.18
+github.com/iden3/go-iden3-crypto/constants
+# github.com/iden3/go-rapidsnark/types v0.0.3
+## explicit; go 1.18
+github.com/iden3/go-rapidsnark/types
+# github.com/iden3/go-rapidsnark/verifier v0.0.5
+## explicit; go 1.18
+github.com/iden3/go-rapidsnark/verifier
+github.com/iden3/go-rapidsnark/verifier/bn256
+github.com/iden3/go-rapidsnark/verifier/bn256/cloudflare
+github.com/iden3/go-rapidsnark/verifier/bn256/google
 # github.com/ipfs/boxo v0.8.0
 ## explicit; go 1.19
 github.com/ipfs/boxo/files
@@ -300,7 +312,7 @@ gitlab.com/distributed_lab/running
 gitlab.com/distributed_lab/urlval
 gitlab.com/distributed_lab/urlval/internal
 gitlab.com/distributed_lab/urlval/internal/betterreflect
-# golang.org/x/crypto v0.6.0
+# golang.org/x/crypto v0.7.0
 ## explicit; go 1.17
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
