@@ -1,8 +1,0 @@
-allOf:
-  - $ref: "#/components/schemas/RingSigKey"
-  - type: object
-    required:
-      - attributes
-    properties:
-      attributes:
-        $ref: "#/components/schemas/RingSigAttr"

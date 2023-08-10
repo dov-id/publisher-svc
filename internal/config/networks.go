@@ -18,8 +18,6 @@ type NetworksCfg struct {
 
 type Network struct {
 	RpcProviderWsUrl        string
-	BlockExplorerApiUrl     string
-	BlockExplorerApiKey     string
 	FeedbackRegistryAddress common.Address
 	WalletCfg               *WalletCfg
 }

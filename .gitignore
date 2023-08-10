@@ -7,3 +7,4 @@ contracts/abi/
 docker-compose.yml
 publisher-svc
 public/
+verification_key.json

@@ -8,12 +8,12 @@ type AddFeedback struct {
 	Key
 	Attributes AddFeedbackAttributes `json:"attributes"`
 }
-type AddFeedbackResponse struct {
+type AddFeedbackRequest struct {
 	Data     AddFeedback `json:"data"`
 	Included Included    `json:"included"`
 }
 
-type AddFeedbackListResponse struct {
+type AddFeedbackListRequest struct {
 	Data     []AddFeedback `json:"data"`
 	Included Included      `json:"included"`
 	Links    *Links        `json:"links"`

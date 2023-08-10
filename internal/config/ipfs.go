@@ -7,7 +7,8 @@ import (
 )
 
 type IpfsCfg struct {
-	Url string `figure:"url,required"`
+	Url          string `fig:"url,required"`
+	ContentLimit int64  `fig:"content_limit,required"`
 }
 
 func (c *config) Ipfs() *IpfsCfg {

@@ -31,7 +31,7 @@ var (
 
 // FeedbackRegistryMetaData contains all meta data concerning the FeedbackRegistry contract.
 var FeedbackRegistryMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"course_\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"i_\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"c_\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"r_\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"publicKeysX_\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"publicKeysY_\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes32[][]\",\"name\":\"merkleTreeProofs_\",\"type\":\"bytes32[][]\"},{\"internalType\":\"bytes32[]\",\"name\":\"keys_\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"values_\",\"type\":\"bytes32[]\"},{\"internalType\":\"string\",\"name\":\"ipfsHash_\",\"type\":\"string\"}],\"name\":\"addFeedback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"certIntegrator_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"contractFeedbacks\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getCourses\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"courses_\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"course_\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getFeedbacks\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"list_\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"verifier_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"course_\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash_\",\"type\":\"string\"},{\"internalType\":\"uint256[2]\",\"name\":\"pA_\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2][2]\",\"name\":\"pB_\",\"type\":\"uint256[2][2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"pC_\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[11]\",\"name\":\"pubSignals_\",\"type\":\"uint256[11]\"}],\"name\":\"addFeedback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"contractFeedbacks\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getCourses\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"courses_\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"course_\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"offset_\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"limit_\",\"type\":\"uint256\"}],\"name\":\"getFeedbacks\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"list_\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // FeedbackRegistryABI is the input ABI used to generate the binding from.
@@ -273,23 +273,23 @@ func (_FeedbackRegistry *FeedbackRegistryCallerSession) GetFeedbacks(course_ com
 	return _FeedbackRegistry.Contract.GetFeedbacks(&_FeedbackRegistry.CallOpts, course_, offset_, limit_)
 }
 
-// AddFeedback is a paid mutator transaction binding the contract method 0x9c72cbcf.
+// AddFeedback is a paid mutator transaction binding the contract method 0x6cc21d9c.
 //
-// Solidity: function addFeedback(address course_, uint256 i_, uint256[] c_, uint256[] r_, uint256[] publicKeysX_, uint256[] publicKeysY_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, string ipfsHash_) returns()
-func (_FeedbackRegistry *FeedbackRegistryTransactor) AddFeedback(opts *bind.TransactOpts, course_ common.Address, i_ *big.Int, c_ []*big.Int, r_ []*big.Int, publicKeysX_ []*big.Int, publicKeysY_ []*big.Int, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ string) (*types.Transaction, error) {
-	return _FeedbackRegistry.contract.Transact(opts, "addFeedback", course_, i_, c_, r_, publicKeysX_, publicKeysY_, merkleTreeProofs_, keys_, values_, ipfsHash_)
+// Solidity: function addFeedback(address course_, string ipfsHash_, uint256[2] pA_, uint256[2][2] pB_, uint256[2] pC_, uint256[11] pubSignals_) returns()
+func (_FeedbackRegistry *FeedbackRegistryTransactor) AddFeedback(opts *bind.TransactOpts, course_ common.Address, ipfsHash_ string, pA_ [2]*big.Int, pB_ [2][2]*big.Int, pC_ [2]*big.Int, pubSignals_ [11]*big.Int) (*types.Transaction, error) {
+	return _FeedbackRegistry.contract.Transact(opts, "addFeedback", course_, ipfsHash_, pA_, pB_, pC_, pubSignals_)
 }
 
-// AddFeedback is a paid mutator transaction binding the contract method 0x9c72cbcf.
+// AddFeedback is a paid mutator transaction binding the contract method 0x6cc21d9c.
 //
-// Solidity: function addFeedback(address course_, uint256 i_, uint256[] c_, uint256[] r_, uint256[] publicKeysX_, uint256[] publicKeysY_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, string ipfsHash_) returns()
-func (_FeedbackRegistry *FeedbackRegistrySession) AddFeedback(course_ common.Address, i_ *big.Int, c_ []*big.Int, r_ []*big.Int, publicKeysX_ []*big.Int, publicKeysY_ []*big.Int, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ string) (*types.Transaction, error) {
-	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, i_, c_, r_, publicKeysX_, publicKeysY_, merkleTreeProofs_, keys_, values_, ipfsHash_)
+// Solidity: function addFeedback(address course_, string ipfsHash_, uint256[2] pA_, uint256[2][2] pB_, uint256[2] pC_, uint256[11] pubSignals_) returns()
+func (_FeedbackRegistry *FeedbackRegistrySession) AddFeedback(course_ common.Address, ipfsHash_ string, pA_ [2]*big.Int, pB_ [2][2]*big.Int, pC_ [2]*big.Int, pubSignals_ [11]*big.Int) (*types.Transaction, error) {
+	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, ipfsHash_, pA_, pB_, pC_, pubSignals_)
 }
 
-// AddFeedback is a paid mutator transaction binding the contract method 0x9c72cbcf.
+// AddFeedback is a paid mutator transaction binding the contract method 0x6cc21d9c.
 //
-// Solidity: function addFeedback(address course_, uint256 i_, uint256[] c_, uint256[] r_, uint256[] publicKeysX_, uint256[] publicKeysY_, bytes32[][] merkleTreeProofs_, bytes32[] keys_, bytes32[] values_, string ipfsHash_) returns()
-func (_FeedbackRegistry *FeedbackRegistryTransactorSession) AddFeedback(course_ common.Address, i_ *big.Int, c_ []*big.Int, r_ []*big.Int, publicKeysX_ []*big.Int, publicKeysY_ []*big.Int, merkleTreeProofs_ [][][32]byte, keys_ [][32]byte, values_ [][32]byte, ipfsHash_ string) (*types.Transaction, error) {
-	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, i_, c_, r_, publicKeysX_, publicKeysY_, merkleTreeProofs_, keys_, values_, ipfsHash_)
+// Solidity: function addFeedback(address course_, string ipfsHash_, uint256[2] pA_, uint256[2][2] pB_, uint256[2] pC_, uint256[11] pubSignals_) returns()
+func (_FeedbackRegistry *FeedbackRegistryTransactorSession) AddFeedback(course_ common.Address, ipfsHash_ string, pA_ [2]*big.Int, pB_ [2][2]*big.Int, pC_ [2]*big.Int, pubSignals_ [11]*big.Int) (*types.Transaction, error) {
+	return _FeedbackRegistry.Contract.AddFeedback(&_FeedbackRegistry.TransactOpts, course_, ipfsHash_, pA_, pB_, pC_, pubSignals_)
 }

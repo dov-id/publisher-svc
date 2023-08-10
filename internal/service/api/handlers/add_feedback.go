@@ -4,19 +4,20 @@ import (
 	"context"
 	"math/big"
 	"net/http"
+	"os"
+	"path/filepath"
 
-	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/ecc_math"
-	"github.com/dov-id/publisher-svc/crypto_master/secp256k1/signatures/ring_sha256"
 	"github.com/dov-id/publisher-svc/internal/config"
 	"github.com/dov-id/publisher-svc/internal/data"
 	"github.com/dov-id/publisher-svc/internal/helpers"
 	"github.com/dov-id/publisher-svc/internal/service/api/requests"
 	"github.com/dov-id/publisher-svc/internal/service/api/responses"
+	"github.com/dov-id/publisher-svc/resources"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/google/uuid"
+	"github.com/iden3/go-rapidsnark/types"
+	"github.com/iden3/go-rapidsnark/verifier"
 	pkgErrors "github.com/pkg/errors"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -32,23 +33,9 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ECPoints, err := ConvertHexKeysToECPoints(request.Data.Attributes.PublicKeys)
+	err = verifyCircomProof(request.Data.Attributes.ZkProof)
 	if err != nil {
-		Log(r).WithError(err).Debugf("failed to convert hex public keys to EC points")
-		ape.RenderErr(w, problems.BadRequest(err)...)
-		return
-	}
-
-	signature, err := newDynamicSizeRingSignature(request.Data.Attributes.Signature.I, request.Data.Attributes.Signature.C, request.Data.Attributes.Signature.R)
-	if err != nil {
-		Log(r).WithError(err).Debugf("failed to convert hex signature to big int values")
-		ape.RenderErr(w, problems.BadRequest(err)...)
-		return
-	}
-
-	isVerifiedSig := ring_sha256.RingSignatureVerify(request.Data.Attributes.Feedback, ECPoints, *signature)
-	if !isVerifiedSig {
-		Log(r).Debugf("signature is not verified")
+		Log(r).WithError(err).Debugf("failed to verify circom proof")
 		ape.RenderErr(w, problems.NotAllowed())
 		return
 	}
@@ -64,14 +51,14 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = sendFeedbackToContract(ParentCtx(r), request, addFeedbackParams{
-		request:    dbRequest,
-		requestsQ:  RequestsQ(r),
-		logger:     Log(r),
-		signature:  *signature,
-		publicKeys: ECPoints,
-		wallet:     Cfg(r).Networks().Networks[data.Network(request.Data.Attributes.Network)].WalletCfg,
+		request:   dbRequest,
+		requestsQ: RequestsQ(r),
+		logger:    Log(r),
+		wallet:    Cfg(r).Networks().Networks[data.Network(request.Data.Attributes.Network)].WalletCfg,
 	})
 	if err != nil {
+		Log(r).WithError(err).Debugf("failed to send feedback to contract")
+
 		dbRequest.Error = err.Error()
 		dbRequest.Status = data.RequestsStatusFailed
 		err = RequestsQ(r).Update(dbRequest)
@@ -79,7 +66,6 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 			err = errors.Wrap(err, "failed to update request status")
 		}
 
-		Log(r).WithError(err).Debugf("failed to send feedback to contract")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
@@ -89,6 +75,50 @@ func AddFeedback(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func verifyCircomProof(zkProof resources.ZkProof) error {
+	verificationKey, err := getVerificationKey()
+	if err != nil {
+		return errors.Wrap(err, "failed to get verification key")
+	}
+
+	err = verifier.VerifyGroth16(*convertZKProof(zkProof), verificationKey)
+	if err != nil {
+		return errors.Wrap(err, "failed to verify groth16 proof")
+	}
+
+	return nil
+}
+
+func getVerificationKey() ([]byte, error) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get current directory path")
+	}
+
+	keyFile := filepath.Join(currentDir, "verification_key.json")
+
+	verificationKeyBytes, err := os.ReadFile(keyFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to read verification key file")
+	}
+
+	return verificationKeyBytes, nil
+}
+
+func convertZKProof(resProof resources.ZkProof) *types.ZKProof {
+	proof := new(types.ZKProof)
+
+	proof.PubSignals = resProof.PubSignals
+	proof.Proof = &types.ProofData{
+		A:        resProof.Proof.PiA,
+		B:        resProof.Proof.PiB,
+		C:        resProof.Proof.PiC,
+		Protocol: resProof.Proof.Protocol,
+	}
+
+	return proof
+}
+
 type addFeedbackParams struct {
 	network   data.Network
 	request   data.Request
@@ -96,20 +126,13 @@ type addFeedbackParams struct {
 	logger    *logan.Entry
 	wallet    *config.WalletCfg
 
-	signature  ring_sha256.RingSignature
-	publicKeys []ecc_math.ECPoint
-
-	auth             *bind.TransactOpts
-	course           common.Address
-	i                *big.Int
-	c                []*big.Int
-	r                []*big.Int
-	publicKeysX      []*big.Int
-	publicKeysY      []*big.Int
-	merkleTreeProofs [][][32]byte
-	keys             [][32]byte
-	values           [][32]byte
-	ipfsHash         string
+	auth        *bind.TransactOpts
+	course      common.Address
+	ipfsHash    string
+	pA_         [2]*big.Int
+	pB_         [2][2]*big.Int
+	pC_         [2]*big.Int
+	pubSignals_ [11]*big.Int
 }
 
 func sendFeedbackToContract(ctx context.Context, req requests.AddFeedbackRequest, params addFeedbackParams) error {
@@ -141,6 +164,48 @@ func sendFeedbackToContract(ctx context.Context, req requests.AddFeedbackRequest
 	return nil
 }
 
+func prepareAddFeedbackParams(
+	req requests.AddFeedbackRequest,
+	params *addFeedbackParams,
+) error {
+	var ok bool
+
+	for i := 0; i < 2; i++ {
+		params.pA_[i], ok = new(big.Int).SetString(req.Data.Attributes.ZkProof.Proof.PiA[i], 10)
+		if !ok {
+			return data.ErrFailedToSetString
+		}
+
+		j := 0
+		l := 1
+		for ; j < 2; j++ {
+			params.pB_[i][j], ok = new(big.Int).SetString(req.Data.Attributes.ZkProof.Proof.PiB[i][l], 10)
+			if !ok {
+				return data.ErrFailedToSetString
+			}
+			l--
+		}
+
+		params.pC_[i], ok = new(big.Int).SetString(req.Data.Attributes.ZkProof.Proof.PiC[i], 10)
+		if !ok {
+			return data.ErrFailedToSetString
+		}
+	}
+
+	for i := 0; i < 11; i++ {
+		params.pubSignals_[i], ok = new(big.Int).SetString(req.Data.Attributes.ZkProof.PubSignals[i], 10)
+		if !ok {
+			return data.ErrFailedToSetString
+		}
+	}
+	
+	params.course = common.HexToAddress(req.Data.Attributes.Course)
+
+	params.ipfsHash = req.Data.Attributes.Feedback
+
+	return nil
+}
+
 func makeAddFeedbackTx(ctx context.Context, params addFeedbackParams) error {
 	feedbackRegistries, err := helpers.GetFeedbackRegistriesFromCtx(ctx)
 	if err != nil {
@@ -155,15 +220,11 @@ func makeAddFeedbackTx(ctx context.Context, params addFeedbackParams) error {
 	transaction, err := feedbackRegistries[params.network].AddFeedback(
 		params.auth,
 		params.course,
-		params.i,
-		params.c,
-		params.r,
-		params.publicKeysX,
-		params.publicKeysY,
-		params.merkleTreeProofs,
-		params.keys,
-		params.values,
 		params.ipfsHash,
+		params.pA_,
+		params.pB_,
+		params.pC_,
+		params.pubSignals_,
 	)
 
 	if err != nil {
@@ -191,142 +252,4 @@ func makeAddFeedbackTx(ctx context.Context, params addFeedbackParams) error {
 	)
 
 	return nil
-}
-
-func newDynamicSizeRingSignature(i string, cHexArr []string, rHexArr []string) (*ring_sha256.RingSignature, error) {
-	var signature ring_sha256.RingSignature
-
-	arraysLen := len(cHexArr)
-
-	tempBigInt, ok := new(big.Int).SetString(i, 10)
-	if !ok {
-		return nil, data.ErrFailedToSetString
-	}
-	signature.I = *tempBigInt
-
-	c := make([]big.Int, arraysLen)
-	r := make([]big.Int, arraysLen)
-
-	for i := 0; i < arraysLen; i++ {
-		tempBigInt, ok = new(big.Int).SetString(cHexArr[i], 10)
-		if !ok {
-			return nil, data.ErrFailedToSetString
-		}
-		c[i] = *tempBigInt
-
-		tempBigInt, ok = new(big.Int).SetString(rHexArr[i], 10)
-		if !ok {
-			return nil, data.ErrFailedToSetString
-		}
-		r[i] = *tempBigInt
-	}
-
-	signature.R = r
-	signature.C = c
-
-	return &signature, nil
-}
-
-func prepareAddFeedbackParams(
-	req requests.AddFeedbackRequest,
-	params *addFeedbackParams,
-) error {
-	var ok bool
-
-	params.course = common.HexToAddress(req.Data.Attributes.Course)
-
-	params.i, ok = new(big.Int).SetString(req.Data.Attributes.Signature.I, 10)
-	if !ok {
-		return data.ErrFailedToSetString
-	}
-
-	err := prepareRingSigParams(params)
-	if err != nil {
-		return errors.Wrap(err, "failed to prepare ring signature params")
-	}
-
-	err = prepareMTProofs(req, params)
-	if err != nil {
-		return errors.Wrap(err, "failed to prepare merkle tree proofs")
-	}
-
-	params.ipfsHash = req.Data.Attributes.Feedback
-
-	return nil
-}
-
-func prepareRingSigParams(params *addFeedbackParams) error {
-	length := len(params.signature.R)
-
-	params.r = make([]*big.Int, length)
-	params.c = make([]*big.Int, length)
-	params.publicKeysX = make([]*big.Int, length)
-	params.publicKeysY = make([]*big.Int, length)
-
-	params.i = &params.signature.I
-
-	for i := 0; i < length; i++ {
-		params.r[i] = &params.signature.R[i]
-		params.c[i] = &params.signature.C[i]
-
-		params.publicKeysX[i] = params.publicKeys[i].X
-		params.publicKeysY[i] = params.publicKeys[i].Y
-	}
-
-	return nil
-}
-
-func prepareMTProofs(req requests.AddFeedbackRequest, params *addFeedbackParams) error {
-	for _, proof := range req.Data.Attributes.Proofs {
-		var tmp [32]byte
-
-		decoded, err := hexutil.Decode(proof.NodeKey)
-		if err != nil {
-			return errors.Wrap(err, "failed to decode proof node key")
-		}
-
-		copy(tmp[:], decoded[:])
-		params.keys = append(params.keys, tmp)
-
-		decoded, err = hexutil.Decode(proof.NodeValue)
-		if err != nil {
-			return errors.Wrap(err, "failed to decode proof node value")
-		}
-
-		copy(tmp[:], decoded[:])
-		params.values = append(params.values, tmp)
-
-		var mtp [][32]byte
-		for _, element := range proof.Proof {
-			decoded, err = hexutil.Decode(element)
-			if err != nil {
-				return errors.Wrap(err, "failed to decode proof element")
-			}
-
-			copy(tmp[:], decoded[:])
-			mtp = append(mtp, tmp)
-		}
-
-		params.merkleTreeProofs = append(params.merkleTreeProofs, mtp)
-	}
-
-	return nil
-}
-
-func ConvertHexKeysToECPoints(publicKeys []string) ([]ecc_math.ECPoint, error) {
-	var ecPoints = make([]ecc_math.ECPoint, len(publicKeys))
-	for i, key := range publicKeys {
-		decodedKey, err := hexutil.Decode(key)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to decode public key")
-		}
-
-		publicECDSA, err := crypto.UnmarshalPubkey(decodedKey)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to convert hex to ecdsa")
-		}
-
-		ecPoints[i] = ecc_math.ECPoint{X: publicECDSA.X, Y: publicECDSA.Y}
-	}
-	return ecPoints, nil
 }

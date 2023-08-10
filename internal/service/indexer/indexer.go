@@ -152,9 +152,14 @@ func (i *indexer) processFeedback(course common.Address, feedback string) error 
 		return data.ErrEmptyFeedbackContent
 	}
 
+	content := *feedbackString
+	if int64(len(*feedbackString)) > i.cfg.Ipfs().ContentLimit {
+		content = fmt.Sprintf("<<ipfs:%s>>", feedback)
+	}
+
 	err = i.FeedbacksQ.Insert(data.Feedback{
 		Course:  course.Hex(),
-		Content: *feedbackString,
+		Content: content,
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to insert feedback")

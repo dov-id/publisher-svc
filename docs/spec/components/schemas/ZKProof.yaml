@@ -1,0 +1,27 @@
+type: object
+required:
+  - proof
+  - pub_signals
+properties:
+  proof:
+    description: Generated Groth16 proof itself
+    $ref: "#/components/schemas/ProofData"
+  pub_signals:
+    type: array
+    items:
+      type: string
+    example: [
+      "455577952957879380106556775654979404163983303222",
+      "44667813780391404145283579356374304250",
+      "1097077688018008265106216665536940668749033598146",
+      "1085036245744964538700039270102943852788901032936",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "42"
+    ]
+    description: public signals (input and output) from generated proof.
+

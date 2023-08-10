@@ -10,6 +10,7 @@ require (
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/google/uuid v1.3.0
+	github.com/iden3/go-rapidsnark/verifier v0.0.5
 	github.com/ipfs/go-cid v0.4.1
 	github.com/ipfs/go-ipfs-api v0.6.0
 	github.com/pkg/errors v0.9.1
@@ -43,6 +44,8 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
+	github.com/iden3/go-iden3-crypto v0.0.15 // indirect
+	github.com/iden3/go-rapidsnark/types v0.0.3 // indirect
 	github.com/ipfs/boxo v0.8.0 // indirect
 	github.com/jmoiron/sqlx v1.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
@@ -80,7 +83,7 @@ require (
 	github.com/whyrusleeping/tar-utils v0.0.0-20180509141711-8c6c8ba81d5c // indirect
 	gitlab.com/distributed_lab/figure v2.1.2+incompatible // indirect
 	gitlab.com/distributed_lab/lorem v0.2.0 // indirect
-	golang.org/x/crypto v0.6.0 // indirect
+	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
